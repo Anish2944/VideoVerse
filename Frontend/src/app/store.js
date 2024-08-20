@@ -1,0 +1,23 @@
+import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
+import { userApi } from '../services/userApi';  // Import your RTK Query API slice
+import authreducer from './authSlice';
+import { videoApi } from '../services/videoApi';
+
+const store = configureStore({
+  reducer: {
+    auth: authreducer,
+    // Add the RTK Query API slice reducer here
+    [userApi.reducerPath]: userApi.reducer,
+    [videoApi.reducerPath]: videoApi.reducer,
+  },
+  // Adding the userApi middleware enables caching, invalidation, polling, and other features of RTK Query
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware()
+      .concat(userApi.middleware)
+      .concat(videoApi.middleware),
+});
+
+setupListeners(store.dispatch);
+
+export default store;
