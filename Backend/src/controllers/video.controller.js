@@ -215,11 +215,27 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, video, "status changed"))
 })
 
+const incrementViews = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    const video = await Video.findByIdAndUpdate(
+        videoId,
+        {$inc: { views: 1}},
+        {new: true}
+    );
+    if (!video) {
+        throw new ApiError(404, "video not found")
+    }
+
+    return res.status(200).json(new ApiResponse(200, video, "View Incremented"))
+})
+
 export {
     getAllVideos,
     publishAVideo,
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    incrementViews
 }

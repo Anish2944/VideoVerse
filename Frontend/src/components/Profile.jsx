@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   useGetChannelProfileQuery,
@@ -8,17 +8,21 @@ import {
 } from "../services/userApi";
 import { useForm } from "react-hook-form";
 import camIcon from "../assets/camIcon.svg";
+import { useNavigate } from "react-router-dom";
+import { useToggelSubscriptionMutation } from "../services/videoApi";
 
 const Profile = ({ username }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const coverImageInputRef = useRef(null);
   const avatarInputref = useRef(null);
+  const navigate = useNavigate();
 
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const currentuser = useSelector((state) => state.auth.user);
   const isOwner = isAuthenticated && currentuser?.data?.username === username;
 
-  const { data: user, isLoading } = useGetChannelProfileQuery(username);
+  const { data: user, isLoading, refetch } = useGetChannelProfileQuery(username);
+  const [toggelSubs] = useToggelSubscriptionMutation();
 
   //updates query
   const [updateAccDetails, { isLoading: updating }] =
@@ -29,6 +33,16 @@ const Profile = ({ username }) => {
 
   const { register, handleSubmit } = useForm();
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!isAuthenticated) {
+        navigate("/");
+      }
+    }, 100); // Adjust the delay as needed
+  
+    return () => clearTimeout(timeoutId);
+  }, [isAuthenticated, navigate]);
+  
   const updateDetails = async (data) => {
     try {
       await updateAccDetails(data).unwrap();
@@ -66,6 +80,11 @@ const Profile = ({ username }) => {
       }
     }
   };
+
+  const handleSubs =  async () => {
+    await toggelSubs(user?.data?._id);
+    refetch();
+  }
 
   return isLoading ? (
     <div className="flex w-full h-full flex-col gap-4">
@@ -209,10 +228,10 @@ const Profile = ({ username }) => {
           </div>
         ) : (
           <button
-            disabled={user?.data?.isSubscribed}
+            onClick={handleSubs}
             className="btn btn-primary"
           >
-            {user?.data?.isSubscribed ? "Subscribed" : "Subscribe"}
+            {user?.data?.isSubscribed ? "Unsbscribe" : "Subscribe"}
           </button>
         )}
       </div>

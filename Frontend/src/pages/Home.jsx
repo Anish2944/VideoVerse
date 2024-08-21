@@ -1,14 +1,13 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import VideoCard from "../components/VideoCard";
 import { useGetAllVideosQuery } from "../services/videoApi";
 
 const Home = () => {
   const { data, isLoading, error } = useGetAllVideosQuery(); 
 
-  console.log(data);
-  console.log('Is Loading:', isLoading); // Debugging line
-  console.log('Error:', error);
+  // console.log(data);
+  // console.log('Is Loading:', isLoading); // Debugging line
+  // console.log('Error:', error);
   return (
     <div className="p-10 mx-10">
       {isLoading ? (
@@ -26,17 +25,11 @@ const Home = () => {
       ) : (
         <>
         {data?.data?.videos?.length > 0 ? (
-          <div className='flex flex-wrap justify-center gap-6'>
+          <div className='flex flex-wrap items-start justify-center gap-6'>
             {data?.data?.videos?.map((video) => (
               <VideoCard
               key={video._id}
-              thumbnail={video.thumbnail}
-              title={video.title}
-              channel={video.channel}
-              views={video.views}
-              owner={video.owner}
-              avatar={video.avatar}
-              createdAt={video.createdAt} />
+              {...video} />
             ))}
           </div>
         ) : (

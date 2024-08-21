@@ -6,6 +6,7 @@ import {
     publishAVideo,
     togglePublishStatus,
     updateVideo,
+    incrementViews
 } from "../controllers/video.controller.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js"
 import { upload } from "../middlewares/multer.middleware.js"
@@ -25,10 +26,11 @@ router.route("/upload-video").post(
             name: "thumbnail",
             maxCount: 1,
         },
-
     ]),
     publishAVideo
 );
+
+router.route('/views/:videoId').patch(incrementViews)
 
 router
     .route("/:videoId")

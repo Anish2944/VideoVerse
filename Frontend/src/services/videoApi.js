@@ -31,6 +31,21 @@ export const videoApi = createApi({
     getUserVideos: builder.query({
       query: () => '/dashboard/videos', // Use a function for query
     }),
+    getVideoById: builder.query({
+      query: (videoId) => `/videos/${videoId}`,
+    }),
+    incViews: builder.mutation({
+      query: (videoId) => ({
+        url: `/videos/views/${videoId}`,
+        method: 'PATCH',
+      }),
+    }),
+    toggelSubscription: builder.mutation({
+      query: (channelId) => ({
+        url: `/subscriptions/c/${channelId}`,
+        method: 'POST',
+      }),
+    }),
   }),
 });
   
@@ -38,4 +53,7 @@ export const {
   useGetAllVideosQuery,
   useUploadVideoMutation,
   useGetUserVideosQuery,
+  useGetVideoByIdQuery,
+  useIncViewsMutation,
+  useToggelSubscriptionMutation,
 } = videoApi;

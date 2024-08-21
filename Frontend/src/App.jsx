@@ -1,21 +1,21 @@
 import Navbar from "./components/Navbar";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-
-import Registration from "./components/Registration";
-import Login from "./components/Login";
-import Home from "./pages/Home";
-import NotFound from "./pages/NotFound";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLazyGetCurrentUserQuery } from "./services/userApi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { login } from "./app/authSlice";
-import UserProfile from "./pages/UserProfile";
+
 import Footer from "./components/Footer";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+
+import { UserProfile, OthersProfile, NotFound,
+   Home, Login, Registration, StreamingPage} from './pages/index.js'
 
 function App() {
   const dispatch = useDispatch();
   const [getCurrentUser] = useLazyGetCurrentUserQuery();
+  const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -24,7 +24,7 @@ function App() {
       if (token) {
         try {
           const res = await getCurrentUser(); // Assume this returns a promise with user data
-          
+
           if (res.data) {
             // Ensure user data contains username or required fields
             dispatch(login(res.data));
@@ -37,7 +37,7 @@ function App() {
       }
     };
     fetchCurrentUser();
-  }, [dispatch, getCurrentUser]);
+  }, [dispatch, getCurrentUser, token]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -55,7 +55,7 @@ function App() {
           <Route
             path="/register"
             element={
-              <div className="flex justify-center items-center h-full">
+              <div className="flex justify-center items-center min-h-screen">
                 <Registration />
               </div>
             }
@@ -63,12 +63,18 @@ function App() {
           <Route
             path="/login"
             element={
-              <div className="flex justify-center items-center h-full">
+              <div className="flex justify-center min-h-screen items-center">
                 <Login />
               </div>
             }
           />
-          <Route path="/myprofile" element={<UserProfile />} />
+          <Route path="/myprofile" element={
+          <PrivateRoute>
+            <UserProfile/>
+          </PrivateRoute>} 
+          />
+          <Route path="/chprofile/:username" element={<OthersProfile />} />
+          <Route path="/video/:videoId" element={<StreamingPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

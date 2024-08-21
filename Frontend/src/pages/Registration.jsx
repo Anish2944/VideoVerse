@@ -1,42 +1,47 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import ProfileImageInput from "./ProfileImageInput";
+import ProfileImageInput from "../components/ProfileImageInput";
 import { useRegisterUserMutation } from "../services/userApi";
-import { useDispatch } from "react-redux";
-import { login } from "../app/authSlice";
+
 
 const Registration = () => {
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [selectedFile, setSelectedFile] = useState(null);
   const [registerUser, { isLoading, error, isSuccess }] =
     useRegisterUserMutation();
   const [serverError, setServerError] = useState(null);
 
   const onSubmit = async (data) => {
+    
+    if (!selectedFile) {
+      setError("avatar", {
+        type: "manual",
+        message: "Profile picture is required",
+      });
+      return;
+    }
     const formData = new FormData();
     formData.append("fullName", data.fullName);
     formData.append("username", data.username);
     formData.append("email", data.email);
     formData.append("password", data.password);
-
-    if (selectedFile) {
-      formData.append("avatar", selectedFile);
-    }
+    formData.append("avatar", selectedFile);
 
     try {
       const response = await registerUser(formData).unwrap();
       localStorage.setItem('token', response.data.accessToken);
-      dispatch(login(response.data));
+
       if (response.success) {
         setInterval(() => {
-          navigate('/');
+          navigate('/login');
         }, 2000);
       } 
     } catch (err) {
@@ -47,7 +52,7 @@ const Registration = () => {
   };
 
   const onError = (errors) => {
-    console.log(errors);
+    console.log("On Error",errors);
   };
 
   return (
@@ -61,9 +66,6 @@ const Registration = () => {
         <form onSubmit={handleSubmit(onSubmit, onError)}>
           <div className="flex flex-col gap-3">
             <ProfileImageInput onFileChange={(file) => setSelectedFile(file)} />
-            {errors.avatar && (
-              <span className="text-error">Image is required</span>
-            )}
 
             <label className="input input-bordered flex items-center gap-2">
               Name:

@@ -46,6 +46,10 @@ export const userApi = createApi({
         method: 'POST',
         body: data,
       }),
+      transformErrorResponse: (response) => {
+        console.error('Register user error:', response);
+        return response;
+      },
     }),
     loginUser: builder.mutation({
       query: (credentials) => ({

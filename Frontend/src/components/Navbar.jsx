@@ -73,7 +73,7 @@ const Navbar = () => {
       </div>
       <div className="navbar-center text-primary">
         <Link to="/" className="btn btn-ghost text-2xl">
-          VideoVerse
+          Videoverse
         </Link>
       </div>
       <div className="navbar-end">
