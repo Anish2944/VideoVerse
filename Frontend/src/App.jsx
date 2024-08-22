@@ -10,7 +10,7 @@ import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 
 import { UserProfile, OthersProfile, NotFound,
-   Home, Login, Registration, StreamingPage} from './pages/index.js'
+   Home, Login, Registration, StreamingPage, VideoForm} from './pages/index.js'
 
 function App() {
   const dispatch = useDispatch();
@@ -75,6 +75,7 @@ function App() {
           />
           <Route path="/chprofile/:username" element={<OthersProfile />} />
           <Route path="/video/:videoId" element={<StreamingPage />} />
+          <Route path="/upload-video" element={<VideoForm />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

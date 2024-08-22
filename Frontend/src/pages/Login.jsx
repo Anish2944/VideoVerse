@@ -1,5 +1,7 @@
-import React,{useState} from 'react'
-import {useForm} from 'react-hook-form'
+import React,{ useState, useEffect } from 'react';
+import { SiTicktick } from "react-icons/si";
+import { RxCrossCircled } from "react-icons/rx";
+import {useForm} from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useLoginUserMutation } from '../services/userApi';
@@ -9,6 +11,7 @@ const Login = () => {
     const {register, handleSubmit, formState: {errors}} = useForm();
     const [loginUser, {isLoading, isSuccess , error}] = useLoginUserMutation();
     const [serverError, setServerError] = useState(null);
+    const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -23,9 +26,7 @@ const Login = () => {
           setServerError(response.message || 'Login failed. Please try again.');
         }
         if (response.success) {
-          setInterval(() => {
-            navigate('/');
-          }, 2000);
+          setSuccess(true);
         }
       } catch (err) {
         // Capture and display the error message from the backend
@@ -33,6 +34,18 @@ const Login = () => {
         setServerError(errorMessage);
       }
     }
+    //Naviating to homePage without side-effects
+    useEffect(() => {
+      if (success) {
+        const timer = setTimeout(() => {
+          navigate(`/`);
+        }, 2000);
+    
+        return () => clearTimeout(timer); // Clear timeout on cleanup
+      }
+    }, [success, navigate]);
+
+
   return (
     <div className="flex flex-col px-10 bg-base-200 p-8 rounded-box justify-center">
       <div className="flex mb-5 justify-center">
@@ -89,36 +102,14 @@ const Login = () => {
             </button>
           </div>
           {isSuccess && (
-            <div role="alert" className="alert z-10 absolute top-1 w-1/5 alert-success">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 shrink-0 stroke-current"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+            <div role="alert" className="alert z-10 fixed top-1 w-1/5 alert-success">
+              <SiTicktick/>
               <span>Login Successfull!</span>
             </div>
           )}
           {error && (
-            <div role="alert" className="alert alert-error z-10 absolute top-1 w-1/4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 shrink-0 stroke-current"
-              fill="none"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <div role="alert" className="alert alert-error z-10 fixed top-1 w-1/4">
+            <RxCrossCircled/>
             <span>{serverError || "Failed to Login. Please try again."}</span>
           </div>
           )}

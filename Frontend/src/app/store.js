@@ -3,6 +3,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { userApi } from '../services/userApi';  // Import your RTK Query API slice
 import authreducer from './authSlice';
 import { videoApi } from '../services/videoApi';
+import { LikeNCommentApi } from '../services/LikeNCommentApi';
 
 const store = configureStore({
   reducer: {
@@ -10,12 +11,14 @@ const store = configureStore({
     // Add the RTK Query API slice reducer here
     [userApi.reducerPath]: userApi.reducer,
     [videoApi.reducerPath]: videoApi.reducer,
+    [LikeNCommentApi.reducerPath]: LikeNCommentApi.reducer,
   },
   // Adding the userApi middleware enables caching, invalidation, polling, and other features of RTK Query
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(userApi.middleware)
-      .concat(videoApi.middleware),
+      .concat(videoApi.middleware)
+      .concat(LikeNCommentApi.middleware),
 });
 
 setupListeners(store.dispatch);

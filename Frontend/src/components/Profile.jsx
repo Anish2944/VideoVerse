@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { RxUpdate } from "react-icons/rx";
 import { useSelector } from "react-redux";
 import {
   useGetChannelProfileQuery,
@@ -119,19 +120,7 @@ const Profile = ({ username }) => {
         </button>}
         {(uploadingCoverImage || uploadingAvatar) && (
           <div role="alert" className="alert z-10 absolute top-1 w-1/3 left-40 alert-info">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="h-6 w-6 shrink-0 stroke-current"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
+            <RxUpdate/>
             <span> updating coverImage...</span>
           </div>
         )}
@@ -229,7 +218,7 @@ const Profile = ({ username }) => {
         ) : (
           <button
             onClick={handleSubs}
-            className="btn btn-primary"
+            className={`btn ${user?.data?.isSubscribed ? "btn-outline" : "btn-primary"} mt-2`}
           >
             {user?.data?.isSubscribed ? "Unsbscribe" : "Subscribe"}
           </button>

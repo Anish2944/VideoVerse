@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { SiTicktick } from "react-icons/si";
+import { RxCrossCircled } from "react-icons/rx";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import ProfileImageInput from "../components/ProfileImageInput";
 import { useRegisterUserMutation } from "../services/userApi";
+import { useDispatch } from "react-redux";
+import { login } from "../app/authSlice";
 
 
 const Registration = () => {
@@ -14,7 +18,9 @@ const Registration = () => {
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [selectedFile, setSelectedFile] = useState(null);
+  const [success, setSuccess] = useState(false);
   const [registerUser, { isLoading, error, isSuccess }] =
     useRegisterUserMutation();
   const [serverError, setServerError] = useState(null);
@@ -37,12 +43,11 @@ const Registration = () => {
 
     try {
       const response = await registerUser(formData).unwrap();
-      localStorage.setItem('token', response.data.accessToken);
+      const token = localStorage.setItem('token', response.data.accessToken);
+      dispatch(login({user: response.data, token}));
 
       if (response.success) {
-        setInterval(() => {
-          navigate('/login');
-        }, 2000);
+        setSuccess(true);
       } 
     } catch (err) {
       setServerError(
@@ -51,9 +56,16 @@ const Registration = () => {
     }
   };
 
-  const onError = (errors) => {
-    console.log("On Error",errors);
-  };
+  //Naviating to homePage without side-effects
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        navigate(`/`);
+      }, 2000);
+  
+      return () => clearTimeout(timer); // Clear timeout on cleanup
+    }
+  }, [success, navigate]);
 
   return (
     <div className="flex flex-col px-10 bg-base-200 p-8 rounded-box justify-center">
@@ -124,36 +136,14 @@ const Registration = () => {
             </button>
           </div>
           {isSuccess && (
-            <div role="alert" className="alert z-10 absolute top-1 w-1/5 alert-success">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 shrink-0 stroke-current"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+            <div role="alert" className="alert z-10 fixed top-1 w-1/5 alert-success">
+              <SiTicktick />
               <span>Registraion Successfull!</span>
             </div>
           )}
           {error && (
-            <div role="alert" className="alert alert-error z-10 absolute top-1 w-1/4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 shrink-0 stroke-current"
-              fill="none"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <div role="alert" className="alert alert-error z-10 fixed top-1 w-1/4">
+            <RxCrossCircled />
             <span>{serverError || "Failed to register. Please try again."}</span>
           </div>
           )}

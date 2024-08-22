@@ -16,6 +16,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
     const limitNumber = parseInt(limit, 10)
 
     const comments = await Comment.find({video: videoId})
+    .populate({path: 'owner', select: 'username avatar'})
     .sort({createdAt: -1})
     .skip((pageNumber - 1)* limitNumber)
     .limit(limitNumber)

@@ -9,7 +9,7 @@ import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy = "createdAt", sortType = "desc", userId } = req.query
+    const { page = 1, limit = 9, query, sortBy = "createdAt", sortType = "desc", userId } = req.query
     //TODO: get all videos based on query, sort, pagination
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
@@ -53,7 +53,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
     }
 
     const owner = await User.findById(ownerId);
-
 
     console.log("req.files:", req.files);
 

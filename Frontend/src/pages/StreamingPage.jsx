@@ -6,6 +6,8 @@ import {
 } from "../services/videoApi";
 import { useGetChannelProfileQuery } from "../services/userApi";
 import { useSelector } from "react-redux";
+import LikeShareButtons from "../components/videoComponents/LikeNShareBtn";
+import CommentSection from "../components/videoComponents/CommentSection";
 
 const StreamingPage = () => {
   const { videoId } = useParams();
@@ -14,9 +16,10 @@ const StreamingPage = () => {
   const [videoData, setVideoData] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const currentuser = useSelector((state) => state.auth.user);
-  const isOwner = isAuthenticated && currentuser?.data?.username === videoData?.channel;
+  const isOwner =
+    isAuthenticated && currentuser?.data?.username === videoData?.channel;
 
   const toggleAccordion = () => {
     setIsOpen(!isOpen);
@@ -45,7 +48,7 @@ const StreamingPage = () => {
 
   if (error) return <div>Error: {error.message}</div>;
   return (
-    <div className="flex flex-col items-center text-white min-h-screen p-6">
+    <div className="flex flex-col items-center min-h-screen p-6">
       {videoData ? (
         <div className="w-full max-w-3xl">
           {/* Video Player */}
@@ -57,45 +60,50 @@ const StreamingPage = () => {
           </div>
 
           {/* Channel Info */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <img
-                onClick={avatarClick}
-                src={videoData.avatar}
-                alt="avatar"
-                className="w-16 h-16 cursor-pointer rounded-full border border-gray-600"
-              />
-              <div className="flex flex-col ml-4">
-                <h3 className="text-2xl font-bold">{videoData.title}</h3>
-                <p className="text-m">{videoData.channel}</p>
-                <p className="text-m">
-                  {user?.data?.subscriberCount} Subscriber
-                </p>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <img
+                  onClick={avatarClick}
+                  src={videoData.avatar}
+                  alt="avatar"
+                  className="w-16 h-16 cursor-pointer rounded-full border border-gray-600"
+                />
+                <div className="flex flex-col">
+                  <h3 className="text-2xl font-bold">{videoData.title}</h3>
+                  <p className="text-sm text-gray-500">{videoData.channel}</p>
+                  <p className="text-sm text-gray-500">
+                    {user?.data?.subscriberCount} Subscriber
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <LikeShareButtons videoId={videoId} />
+                {!isOwner && (
+                  <button
+                    onClick={handleSubs}
+                    className={`btn ${
+                      user?.data?.isSubscribed ? "btn-outline" : "btn-primary"
+                    }`}
+                  >
+                    {user?.data?.isSubscribed ? "Unsubscribe" : "Subscribe"}
+                  </button>
+                )}
               </div>
             </div>
-            {!isOwner && <button onClick={handleSubs} className="btn btn-primary mt-2">
-              {user?.data?.isSubscribed ? "Unsbscribe" : "Subscribe"}
-            </button>}
           </div>
 
           {/* Video Description */}
-          <div
-            className={`collapse collapse-arrow bg-base-200 ${
-              isOpen ? "collapse-open" : ""
-            }`}
-          >
-            <div
-              onClick={toggleAccordion}
-              className="collapse-title text-xl font-medium cursor-pointer"
-            >
-              Description
-            </div>
-            {isOpen && (
+          <div className="mt-5">
+            <div className="collapse collapse-arrow bg-base-200">
+              <input type="checkbox" />
+              <div className="collapse-title text-xl font-medium">Description</div>
               <div className="collapse-content">
-                <p>{videoData.description}</p>
+                <p>{videoData?.description}</p>
               </div>
-            )}
+            </div>
           </div>
+          <CommentSection videoId={videoId} />
         </div>
       ) : (
         <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto p-6">
