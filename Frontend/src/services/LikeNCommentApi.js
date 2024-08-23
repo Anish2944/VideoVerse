@@ -39,6 +39,9 @@ export const LikeNCommentApi = createApi({
       }),
       invalidatesTags: ['cLike'],
     }),
+    getLikedVideos: builder.query({
+      query: () => '/likes/likedvideos',
+    }),
     getVideoComments: builder.query({
       query: (videoId) => `/comments/${videoId}`,
       providesTags: ['comment'],
@@ -78,4 +81,5 @@ export const {
   useAddVideoCommentMutation,
   useUpdateVideoCommentMutation,
   useDeleteVideoCommentMutation,
+  useGetLikedVideosQuery,
 } = LikeNCommentApi;

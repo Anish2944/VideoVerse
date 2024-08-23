@@ -107,62 +107,63 @@ const getVideoById = asyncHandler(async (req, res) => {
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    //TODO: update video details like title, description, thumbnail
-    if (!videoId) {
-        throw new ApiError(400, "Video is Missing")
-    }
-    const { title, description } = req.body;
+    const { videoId } = req.params;
 
+    if (!videoId) {
+        throw new ApiError(400, "Video ID is missing");
+    }
+
+    const { title, description } = req.body;
     const video = await Video.findById(videoId);
+
     if (!video) {
         throw new ApiError(404, "Video not found");
     }
-
-    if (title) video.title = title;
-    if (description) video.description = description;
 
     if (video.owner.toString() !== req.user._id.toString()) {
         throw new ApiError(403, "You do not have permission to update this video");
     }
 
-    // uploading video if provided by taking file optionally
-    // let videoFilePath;
-    // if (req.files?.videoFile?.length > 0) {
-    //     videoFilePath = req.files.videoFile[0].path;
-    // }
+    // Update title and description if provided
+    if (title) video.title = title;
+    if (description) video.description = description;
 
-    // const videoFile = await uploadOnCloudinary(videoFilePath);
-    // if (videoFile?.url) {
-    //     await deleteFromCloudinary(video.videoFile);
-    //     video.videoFile = videoFile.url;
-    // }
-
-    let thumbnailPath;
-    if (req.files?.thumbnail?.length > 0) {
-        thumbnailPath = req.files.thumbnail[0].path;
+    // Update video file if provided
+    if (req.files?.videoFile?.length > 0) {
+        const videoFilePath = req.files.videoFile[0].path;
+        try {
+            const videoFile = await uploadOnCloudinary(videoFilePath);
+            if (videoFile?.url) {
+                await deleteFromCloudinary(video.videoFile); // Delete the old video file from Cloudinary
+                video.videoFile = videoFile.url;
+            }
+        } catch (error) {
+            console.error("Error while uploading video file:", error);
+            throw new ApiError(500, "Failed to update video file");
+        }
     }
-    // same for thumnail
-    try {
-        if (fs.existsSync(thumbnailPath)) {
-            const thumbnail = await uploadOnCloudinary(thumbnailPath);
-            console.log('Uploaded thumbnail:', thumbnail);
 
+    // Update thumbnail if provided
+    if (req.files?.thumbnail?.length > 0) {
+        const thumbnailPath = req.files.thumbnail[0].path;
+        try {
+            const thumbnail = await uploadOnCloudinary(thumbnailPath);
             if (thumbnail?.url) {
-                await deleteFromCloudinary(video.thumbnail);
+                await deleteFromCloudinary(video.thumbnail); // Delete the old thumbnail from Cloudinary
                 video.thumbnail = thumbnail.url;
             }
-        } else {
-            console.error('Thumbnail path does not exist:', thumbnailPath);
+        } catch (error) {
+            console.error("Error while uploading thumbnail:", error);
+            throw new ApiError(500, "Failed to update thumbnail");
         }
-    } catch (error) {
-        console.error("Error while uploading thumbnail", error)
     }
+
+    // Save updated video details
     await video.save();
 
-    return res.status(200).json(new ApiResponse(200, video, "video updated Successfully"))
+    return res.status(200).json(new ApiResponse(200, video, "Video updated successfully"));
+});
 
-})
 
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
@@ -229,6 +230,24 @@ const incrementViews = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, video, "View Incremented"))
 })
 
+const getAllUserVideos = asyncHandler(async (req, res) => {
+    // TODO: Get all the videos uploaded by userId
+    const { userId } = req.params;
+    if (!userId) {
+        throw new ApiError(404, "userId is missing")
+    }
+
+    const userVideos = await Video.find({
+        owner: userId
+    })
+
+    if (userVideos.length === 0) {
+        return res.status(200).json(new ApiResponse(200, [], "No videos found"))
+    }
+
+    return res.status(200).json(new ApiResponse(200,userVideos," videos found "))
+})
+
 export {
     getAllVideos,
     publishAVideo,
@@ -236,5 +255,6 @@ export {
     updateVideo,
     deleteVideo,
     togglePublishStatus,
-    incrementViews
+    incrementViews,
+    getAllUserVideos
 }

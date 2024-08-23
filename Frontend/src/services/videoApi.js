@@ -22,17 +22,34 @@ export const videoApi = createApi({
       query: () => '/videos/', // Use a function for query
     }),
     uploadVideo: builder.mutation({
-      query: (videoFile) => ({
+      query: (videoData) => ({
         url: '/videos/upload-video',
         method: 'POST',
-        body: videoFile,
+        body: videoData,
       }),
     }),
     getUserVideos: builder.query({
-      query: () => '/dashboard/videos', // Use a function for query
+      query: (userId) => `/videos/uservideos/${userId}`,
+      providesTags: ['video'] 
     }),
     getVideoById: builder.query({
       query: (videoId) => `/videos/${videoId}`,
+      providesTags: ['videoById']
+    }),
+    deleteVideoById: builder.mutation({
+      query: (videoId) => ({
+        url: `/videos/${videoId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['video']
+    }),
+    updateVideoById: builder.mutation({
+      query: ({videoId, videoData}) => ({
+        url: `/videos/${videoId}`,
+        method: 'PATCH',
+        body: videoData,
+      }),
+      invalidatesTags: ['videoById']
     }),
     incViews: builder.mutation({
       query: (videoId) => ({
@@ -56,4 +73,6 @@ export const {
   useGetVideoByIdQuery,
   useIncViewsMutation,
   useToggelSubscriptionMutation,
+  useDeleteVideoByIdMutation,
+  useUpdateVideoByIdMutation,
 } = videoApi;

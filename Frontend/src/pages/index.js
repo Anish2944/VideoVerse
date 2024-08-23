@@ -6,6 +6,7 @@ import OthersProfile from "./OthersProfile";
 import Login from "./Login";
 import Registration from "./Registration";
 import VideoForm from "./VideoForm";
+import UpdateVideo from "./UpdateVideo";
 
 export {
     VideoForm,
@@ -16,4 +17,5 @@ export {
     OthersProfile,
     Login,
     Registration,
+    UpdateVideo
 }

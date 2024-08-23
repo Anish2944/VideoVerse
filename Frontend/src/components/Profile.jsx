@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import camIcon from "../assets/camIcon.svg";
 import { useNavigate } from "react-router-dom";
 import { useToggelSubscriptionMutation } from "../services/videoApi";
+import TabComponent from "./ProfileComponents/TabComponents";
 
 const Profile = ({ username }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -22,28 +23,33 @@ const Profile = ({ username }) => {
   const currentuser = useSelector((state) => state.auth.user);
   const isOwner = isAuthenticated && currentuser?.data?.username === username;
 
-  const { data: user, isLoading, refetch } = useGetChannelProfileQuery(username);
+  const {
+    data: user,
+    isLoading,
+    refetch,
+  } = useGetChannelProfileQuery(username);
   const [toggelSubs] = useToggelSubscriptionMutation();
 
-  //updates query
+  // Updates query
   const [updateAccDetails, { isLoading: updating }] =
     useUpdateAccDetailsMutation();
   const [updateCoverImage, { isLoading: uploadingCoverImage }] =
     useUpdateCoverImageMutation();
-  const [updateAvatar,{isLoading: uploadingAvatar}] = useUpdateAvatarMutation();
+  const [updateAvatar, { isLoading: uploadingAvatar }] =
+    useUpdateAvatarMutation();
 
   const { register, handleSubmit } = useForm();
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (!isAuthenticated) {
-        navigate("/");
-      }
-    }, 100); // Adjust the delay as needed
-  
-    return () => clearTimeout(timeoutId);
-  }, [isAuthenticated, navigate]);
-  
+  // useEffect(() => {
+  //   const timeoutId = setTimeout(() => {
+  //     if (!isAuthenticated) {
+  //       navigate("/");
+  //     }
+  //   }, 100); // Adjust the delay as needed
+
+  //   return () => clearTimeout(timeoutId);
+  // }, [isAuthenticated, navigate]);
+
   const updateDetails = async (data) => {
     try {
       await updateAccDetails(data).unwrap();
@@ -52,9 +58,11 @@ const Profile = ({ username }) => {
       console.log(error);
     }
   };
+
   const handleButtonClick = () => {
     coverImageInputRef.current.click(); // Trigger the file input
   };
+
   const handleCoverImageChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -68,6 +76,7 @@ const Profile = ({ username }) => {
       }
     }
   };
+
   const handleAvatarChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -82,10 +91,10 @@ const Profile = ({ username }) => {
     }
   };
 
-  const handleSubs =  async () => {
+  const handleSubs = async () => {
     await toggelSubs(user?.data?._id);
     refetch();
-  }
+  };
 
   return isLoading ? (
     <div className="flex w-full h-full flex-col gap-4">
@@ -99,69 +108,76 @@ const Profile = ({ username }) => {
       </div>
     </div>
   ) : (
-    <div className="w-full">
+    <div className="w-full bg-base-200 rounded-lg">
       <div className="relative w-full h-1/3">
-        <img
+        { user?.data?.coverImage && <img
           src={user?.data?.coverImage}
           alt="coverImage"
           className="w-full h-48 object-cover"
-        />
-        { isOwner && <button
-          onClick={handleButtonClick}
-          className="btn absolute right-4 bottom-[2px] "
-        >
-          <img src={camIcon} />
-          <input
-            type="file"
-            ref={coverImageInputRef} // Assign ref
-            className="hidden"
-            onChange={handleCoverImageChange}
-          />
-        </button>}
+        />}
+        {isOwner && (
+          <button
+            onClick={handleButtonClick}
+            className="btn absolute right-4 bottom-[2px]"
+          >
+            <img src={camIcon} />
+            <input
+              type="file"
+              ref={coverImageInputRef} // Assign ref
+              className="hidden"
+              onChange={handleCoverImageChange}
+            />
+          </button>
+        )}
+        {/* alert message */}
         {(uploadingCoverImage || uploadingAvatar) && (
-          <div role="alert" className="alert z-10 absolute top-1 w-1/3 left-40 alert-info">
-            <RxUpdate/>
-            <span> updating coverImage...</span>
+          <div
+            role="alert"
+            className="alert z-10 absolute top-1 w-1/3 left-40 alert-info"
+          >
+            <RxUpdate />
+            <span> updating Image...</span>
           </div>
         )}
         <div className="absolute bottom-[-80px] left-4">
-          <div className="avatar ">
-            <div className="w-24  relative rounded-full">
+          <div className="avatar">
+            <div className="w-24 relative rounded-full">
               <img src={user?.data?.avatar} />
             </div>
           </div>
           <div className="absolute right-1 bottom-2">
-            {isOwner && <button onClick={() => avatarInputref.current.click()} className="bg-gray-400 p-1 rounded-full">
-              <img height="17px" width="17px" src={camIcon} />
-              <input
-                type="file"
-                ref={avatarInputref} // Assign ref
-                className="hidden"
-                onChange={handleAvatarChange}
-              />
-            </button>}
+            {isOwner && (
+              <button
+                onClick={() => avatarInputref.current.click()}
+                className="bg-gray-400 p-1 rounded-full"
+              >
+                <img height="17px" width="17px" src={camIcon} />
+                <input
+                  type="file"
+                  ref={avatarInputref} // Assign ref
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
+              </button>
+            )}
           </div>
         </div>
       </div>
-      <div className="flex justify-between items-center ml-8 p-2">
-        <div className="ml-20 flex flex-col">
+      <div className="flex flex-col lg:flex-row lg:justify-between px-5 lg:items-center ml-8 p-2">
+        <div className="ml-20 flex flex-col mb-4 lg:mb-0">
           <strong className="text-xl uppercase">{user?.data?.fullName}</strong>
           <strong className="">@{user?.data?.username}</strong>
           <p>{user?.data?.email}</p>
         </div>
-        <div>
+        <div className="mb-4 lg:mb-0">
           <p>{user?.data?.subscriberCount} subscribers</p>
           <p>{user?.data?.channelSubscribedToCount} channel Subscribed</p>
         </div>
         {isOwner ? (
           <div>
-            {/* Open the modal using document.getElementById('ID').showModal() method */}
-            {/* You can open the modal using document.getElementById('ID').showModal() method */}
             <button
               className="btn btn-outline"
-              onClick={() => {
-                setDialogOpen(true);
-              }}
+              onClick={() => setDialogOpen(true)}
             >
               Edit Profile
             </button>
@@ -169,7 +185,6 @@ const Profile = ({ username }) => {
               <dialog className="modal" open>
                 <div className="modal-box">
                   <form method="dialog">
-                    {/* if there is a button in form, it will close the modal */}
                     <button
                       className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
                       onClick={() => setDialogOpen(false)}
@@ -218,17 +233,17 @@ const Profile = ({ username }) => {
         ) : (
           <button
             onClick={handleSubs}
-            className={`btn ${user?.data?.isSubscribed ? "btn-outline" : "btn-primary"} mt-2`}
+            className={`btn w-1/3 sm:w-1/6 ${
+              user?.data?.isSubscribed ? "btn-outline btn-secondary" : "btn-primary"
+            } mt-2`}
           >
             {user?.data?.isSubscribed ? "Unsbscribe" : "Subscribe"}
           </button>
         )}
       </div>
       <div className="divider"></div>
-      <div className="tabs tabs-bordered">
-        <a className="tab">Videos</a>
-        {isOwner && <a className="tab tab-active">Liked Videos</a>}
-        {isOwner && <a className="tab">Playlist</a>}
+      <div className="w-full mx-auto p-4">
+        <TabComponent isOwner={isOwner} userId={user?.data?._id} />
       </div>
     </div>
   );

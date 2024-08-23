@@ -25,7 +25,7 @@ const Navbar = () => {
   }, [logout, navigate]);
 
   return (
-    <div className="navbar bg-base-100 sticky top-0 z-10 ">
+    <div className="navbar bg-base-200 sticky top-0 z-10 ">
       <div className="navbar-start">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
@@ -68,9 +68,9 @@ const Navbar = () => {
           Videoverse
         </Link>
       </div>
-      <div className="navbar-end">
+      <div className="navbar-end gap-2">
         <button className="btn btn-ghost btn-circle">
-          <TfiSearch className="text-2xl" />
+          <TfiSearch className="sm:text-2xl text-xl " />
         </button>
         <label className="swap swap-rotate">
           {/* this hidden checkbox controls the state */}
@@ -87,10 +87,10 @@ const Navbar = () => {
           />
 
           {/* sun icon */}
-          <HiOutlineSun className="swap-on h-5 w-5 sm:h-7 sm:w-12 fill-current" />
+          <HiOutlineSun className="swap-on h-6 w-6 sm:h-7 sm:w-12 fill-current" />
 
           {/* moon icon */}
-          <HiOutlineMoon className="swap-off h-5 w-5 sm:h-7 sm:w-12 fill-current" />
+          <HiOutlineMoon className="swap-off h-6 w-6 sm:h-7 sm:w-12 fill-current" />
         </label>
         {isAuthenticated && (
           <div className="dropdown dropdown-end">

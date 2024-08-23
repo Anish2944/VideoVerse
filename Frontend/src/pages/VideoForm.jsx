@@ -2,10 +2,15 @@ import React, { useState, useEffect } from "react";
 import { SiTicktick } from "react-icons/si";
 import { RxCrossCircled } from "react-icons/rx";
 import { useForm } from "react-hook-form";
-import { useUploadVideoMutation } from "../services/videoApi";
+import { useGetVideoByIdQuery, useUpdateVideoByIdMutation, useUploadVideoMutation } from "../services/videoApi";
 import { useNavigate } from "react-router-dom";
 
-const VideoForm = () => {
+const VideoForm = ({ videoId }) => {
+
+  const {data: video, isLoading: loading} = useGetVideoByIdQuery(videoId);
+  const isUpdateMode = Boolean(video); //If video data available update mode will be on
+
+
   const {
     register,
     handleSubmit,
@@ -19,6 +24,7 @@ const VideoForm = () => {
 
   const [uploadVideo, { isLoading, error, isSuccess }] =
     useUploadVideoMutation();
+  const [updateVideo, {isLoading: updating, isSuccess: updated}] = useUpdateVideoByIdMutation();
   const navigate = useNavigate();
   const [serverErr,setServerErr] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -26,22 +32,50 @@ const VideoForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log("Form Submitted: ", data);
       const formData = new FormData();
-      formData.append("videoFile", data.videoFile[0]);
-      formData.append("thumbnail", data.thumbnail[0]);
-      formData.append("title", data.title);
-      formData.append("description", data.description);
+      if (isUpdateMode) {
 
-      const response = await uploadVideo(formData).unwrap();
-      if (response.success) {
-        setUploadedVideoId(response?.data?._id); // Store the uploaded video ID
-        setUploadSuccess(true);
+        if (data.videoFile && data.videoFile.length > 0) {
+          formData.append("videoFile", data.videoFile[0]);
+        }
+  
+        if (data.thumbnail && data.thumbnail.length > 0) {
+          formData.append("thumbnail", data.thumbnail[0]);
+        }
+        formData.append("title", data.title);
+        formData.append("description", data.description);
+
+        const response = await updateVideo({videoId, videoData: formData}).unwrap();
+        console.log(response)
+        if (response.success) {
+          setUploadedVideoId(response?.data?._id); // Store the uploaded video ID
+          setUploadSuccess(true);
+        }
+        
+      } else {
+        formData.append("videoFile", data.videoFile[0]);
+        formData.append("thumbnail", data.thumbnail[0]);
+        formData.append("title", data.title);
+        formData.append("description", data.description);
+  
+        const response = await uploadVideo(formData).unwrap();
+        if (response.success) {
+          setUploadedVideoId(response?.data?._id); // Store the uploaded video ID
+          setUploadSuccess(true);
+        }
       }
     } catch (error) {
         setServerErr(error?.data?.message || 'Failed to upload');
     }
   };
+
+  // File preview if available on UpdatingMode
+  useEffect(() => {
+    if (isUpdateMode) {
+      setVideoPreview(video?.data?.videoFile)
+      setThumbnailPreview(video?.data?.thumbnail)
+    }
+  },[isUpdateMode])
   //Navigate to videopost
   useEffect(() => {
     if (uploadSuccess && uploadedVideoId) {
@@ -90,7 +124,7 @@ const VideoForm = () => {
   }, [thumbnailFile, setError]);
 
   return (
-    <div className="max-w-lg mx-auto my-5 p-6 bg-base-200 rounded-box">
+    <div className="max-w-lg mx-auto my-5 p-6 bg-base-300 rounded-box">
       <h2 className="text-2xl font-bold mb-6">Upload Video</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -100,7 +134,7 @@ const VideoForm = () => {
           <input
             type="file"
             accept="video/*"
-            {...register("videoFile", { required: "Video file is required" })}
+            {...register("videoFile", { required: !isUpdateMode ? "Video file is required" : false })}
             className="file-input file-input-bordered w-full mt-2"
           />
           {errors.videoFile && (
@@ -123,7 +157,7 @@ const VideoForm = () => {
             type="file"
             accept="image/*"
             {...register("thumbnail", {
-              required: "Thumbnail image is required",
+              required: !isUpdateMode ? "Thumbnail image is required" : false,
             })}
             className="file-input file-input-bordered w-full mt-2"
           />
@@ -149,8 +183,9 @@ const VideoForm = () => {
             <input
               type="text"
               placeholder="What is your title?"
-              className="input input-bordered w-full "
-              {...register("title", { required: true })}
+              defaultValue={video?.data?.title}
+              className="input input-bordered w-full"
+              {...register("title", { required: !isUpdateMode})}
             />
           </label>
         </div>
@@ -161,21 +196,22 @@ const VideoForm = () => {
             </div>
             <textarea
               className="textarea textarea-bordered h-24"
+              defaultValue={video?.data?.description}
               placeholder="what's on your mind?"
-              {...register("description", { required: true })}
+              {...register("description", { required: !isUpdateMode })}
             ></textarea>
           </label>
         </div>
 
         {/* Submit Button */}
-        <button type="submit" className="btn btn-primary">
-          Upload Video
+        <button type="submit" disabled={isLoading || updating} className="btn btn-primary">
+          {isLoading || updating ? <span className="loading loading-bars loading-sm"></span> : `${isUpdateMode ? 'Update video' : 'Upload video'}` }
         </button>
       </form>
-      {isSuccess && (
+      {(isSuccess || updated) && (
             <div role="alert" className="alert z-20 fixed top-5 w-1/5 alert-success">
               <SiTicktick/>
-              <span>Video Published Successfully</span>
+              <span>{!isUpdateMode ? 'Video Published Successfully' : 'Video Updated Successfully'}</span>
             </div>
           )}
       {error && (

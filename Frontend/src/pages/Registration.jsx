@@ -68,14 +68,14 @@ const Registration = () => {
   }, [success, navigate]);
 
   return (
-    <div className="flex flex-col px-10 bg-base-200 p-8 rounded-box justify-center">
+    <div className="flex flex-col px-10 bg-base-300 p-8 rounded-box justify-center">
       <div className="flex mb-5 justify-center">
         <h2 className="text-center text-primary text-2xl font-bold leading-tight">
           Create Account
         </h2>
       </div>
       <div>
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-3">
             <ProfileImageInput onFileChange={(file) => setSelectedFile(file)} />
 
