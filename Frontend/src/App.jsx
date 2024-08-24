@@ -12,6 +12,8 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import { UserProfile, OthersProfile, NotFound,
    Home, Login, Registration, StreamingPage, VideoForm, UpdateVideo} from './pages/index.js'
 
+import { SearchProvider } from './context/SearchContext.jsx'
+
 function App() {
   const dispatch = useDispatch();
   const [getCurrentUser] = useLazyGetCurrentUserQuery();
@@ -40,6 +42,7 @@ function App() {
   }, [dispatch, getCurrentUser, token]);
 
   return (
+    <SearchProvider>  
     <div className="flex flex-col bg-base-100 min-h-screen">
       <Navbar />
       <div className="flex-1">
@@ -82,6 +85,7 @@ function App() {
       </div>
       <Footer />
     </div>
+  </SearchProvider>
   );
 }
 

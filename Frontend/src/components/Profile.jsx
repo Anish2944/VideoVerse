@@ -40,16 +40,6 @@ const Profile = ({ username }) => {
 
   const { register, handleSubmit } = useForm();
 
-  // useEffect(() => {
-  //   const timeoutId = setTimeout(() => {
-  //     if (!isAuthenticated) {
-  //       navigate("/");
-  //     }
-  //   }, 100); // Adjust the delay as needed
-
-  //   return () => clearTimeout(timeoutId);
-  // }, [isAuthenticated, navigate]);
-
   const updateDetails = async (data) => {
     try {
       await updateAccDetails(data).unwrap();
@@ -110,25 +100,47 @@ const Profile = ({ username }) => {
   ) : (
     <div className="w-full bg-base-200 rounded-lg">
       <div className="relative w-full h-1/3">
-        { user?.data?.coverImage && <img
-          src={user?.data?.coverImage}
-          alt="coverImage"
-          className="w-full h-48 object-cover"
-        />}
-        {isOwner && (
-          <button
-            onClick={handleButtonClick}
-            className="btn absolute right-4 bottom-[2px]"
-          >
-            <img src={camIcon} />
-            <input
-              type="file"
-              ref={coverImageInputRef} // Assign ref
-              className="hidden"
-              onChange={handleCoverImageChange}
+        <div className="relative w-full h-48 bg-gray-300 flex items-center justify-center">
+          {/* Check if the user has a cover image */}
+          {user?.data?.coverImage ? (
+            <img
+              src={user?.data?.coverImage}
+              alt="coverImage"
+              className="w-full h-48 object-cover"
             />
-          </button>
-        )}
+          ) : (
+            // Display this section when there is no cover image
+            <div className="text-center">
+              <p className="text-gray-500">No cover image available</p>
+              {isOwner && (
+                <button
+                  onClick={handleButtonClick}
+                  className="btn btn-primary mt-4"
+                >
+                  <img src={camIcon} alt="Upload" className="inline mr-2" />
+                  Upload Cover Image
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Display the button as an overlay if there is a cover image */}
+          {isOwner && user?.data?.coverImage && (
+            <button
+              onClick={handleButtonClick}
+              className="btn absolute right-4 bottom-4 bg-opacity-70"
+            >
+              <img src={camIcon} alt="Change Cover" />
+              <input
+                type="file"
+                ref={coverImageInputRef}
+                className="hidden"
+                onChange={handleCoverImageChange}
+              />
+            </button>
+          )}
+        </div>
+
         {/* alert message */}
         {(uploadingCoverImage || uploadingAvatar) && (
           <div
@@ -176,7 +188,7 @@ const Profile = ({ username }) => {
         {isOwner ? (
           <div>
             <button
-              className="btn btn-outline"
+              className="btn btn-secondary btn-outline"
               onClick={() => setDialogOpen(true)}
             >
               Edit Profile
@@ -234,7 +246,7 @@ const Profile = ({ username }) => {
           <button
             onClick={handleSubs}
             className={`btn w-1/3 sm:w-1/6 ${
-              user?.data?.isSubscribed ? "btn-outline btn-secondary" : "btn-primary"
+              user?.data?.isSubscribed ? "btn-outline btn-error" : "btn-primary"
             } mt-2`}
           >
             {user?.data?.isSubscribed ? "Unsbscribe" : "Subscribe"}

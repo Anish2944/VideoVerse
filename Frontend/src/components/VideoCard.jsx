@@ -40,7 +40,7 @@ const VideoCard = ({
 
   return (
     <>
-    <div className="card h-fit relative w-[40%] min-w-[400px] sm:w-[30%] sm:min-w-[250px] bg-base-200 shadow-xl">
+    <div className="card h-fit relative w-[40%] min-w-[400px] sm:w-[30%] sm:min-w-[300px] bg-base-200 shadow-xl">
       <figure>
         <img
           onClick={thumbnailClick}
@@ -70,7 +70,7 @@ const VideoCard = ({
           </div>
         </div>
         {isOwner && <div className="dropdown absolute right-1 dropdown-top dropdown-end">
-          <div tabIndex={0} role="button" className="btn m-1">
+          <div tabIndex={0} role="button" className="btn rounded-full m-1">
             <CiMenuKebab/>
           </div>
           <ul
@@ -78,10 +78,10 @@ const VideoCard = ({
             className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
           >
             <li>
-            <button onClick={handleUpdate} >update</button>
+            <button className="" onClick={handleUpdate} >Update</button>
             </li>
             <li>
-              <button onClick={handleDelete} >delete</button>
+              <button className=" text-error" onClick={handleDelete} >Delete</button>
             </li>
           </ul>
         </div>}

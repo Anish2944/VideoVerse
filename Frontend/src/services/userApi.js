@@ -102,6 +102,9 @@ export const userApi = createApi({
       }),
       invalidatesTags: ['UserProfile'],
     }),
+    getWatchHistory: builder.query({
+      query: () => `/watch-history`,
+    })
   }),
 });
 
@@ -116,4 +119,5 @@ export const {
   useUpdateAccDetailsMutation,
   useUpdateCoverImageMutation,
   useUpdateAvatarMutation,
+  useGetWatchHistoryQuery
 } = userApi;

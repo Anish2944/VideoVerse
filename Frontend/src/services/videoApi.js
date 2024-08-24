@@ -19,7 +19,10 @@ export const videoApi = createApi({
   
   endpoints: (builder) => ({
     getAllVideos: builder.query({
-      query: () => '/videos/', // Use a function for query
+      query: ({ page = 1, limit = 9, query = "" } = {}) => ({
+        url: '/videos/',
+        params: { page, limit, query },
+      }),
     }),
     uploadVideo: builder.mutation({
       query: (videoData) => ({
@@ -63,6 +66,12 @@ export const videoApi = createApi({
         method: 'POST',
       }),
     }),
+    setWatchHistory: builder.mutation({
+      query: (videoId) => ({
+        url: `/videos/add-wh/${videoId}`,
+        method: 'PATCH',
+      }),
+    }),
   }),
 });
   
@@ -75,4 +84,5 @@ export const {
   useToggelSubscriptionMutation,
   useDeleteVideoByIdMutation,
   useUpdateVideoByIdMutation,
+  useSetWatchHistoryMutation,
 } = videoApi;

@@ -3,18 +3,20 @@ import { useGetLikedVideosQuery } from "../../services/LikeNCommentApi";
 import VideoCard from "../VideoCard";
 import { useGetUserVideosQuery } from "../../services/videoApi";
 import { Link } from "react-router-dom";
+import { useGetWatchHistoryQuery } from "../../services/userApi";
 
 const TabComponent = ({ isOwner, userId }) => {
   const [activeTab, setActiveTab] = useState("videos");
   const { data: likedvideos, isLoading: likeloading } = useGetLikedVideosQuery();
   const { data: uservideos, isLoading } = useGetUserVideosQuery(userId);
+  const {data: watchHistory, isLoading: watchLoading} = useGetWatchHistoryQuery();
 
-  if (isLoading || likeloading) {
+  if (isLoading || likeloading || watchLoading) {
     return (
         <div className="flex flex-wrap justify-center gap-1 sm:gap-6">
-          <div className="skeleton h-40 w-[30%] min-w-[250px]"></div>
-          <div className="skeleton h-40 w-[30%] min-w-[250px]"></div>
-          <div className="skeleton h-40 w-[30%] min-w-[250px]"></div>
+          <div className="skeleton h-40 w-[30%] min-w-[300px]"></div>
+          <div className="skeleton h-40 w-[30%] min-w-[300px]"></div>
+          <div className="skeleton h-40 w-[30%] min-w-[300px]"></div>
         </div>
     )
   }
@@ -38,10 +40,10 @@ const TabComponent = ({ isOwner, userId }) => {
         )}
         {isOwner && (
           <button
-            className={`tab ${activeTab === "playlist" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("playlist")}
+            className={`tab ${activeTab === "watch History" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("watch History")}
           >
-            Playlist
+            Watch History
           </button>
         )}
       </div>
@@ -81,6 +83,7 @@ const TabComponent = ({ isOwner, userId }) => {
                   <VideoCard
                     key={video.videoDetails._id}
                     {...video.videoDetails}
+                    isOwner={isOwner}
                   />
                 ))}
               </div>
@@ -91,7 +94,24 @@ const TabComponent = ({ isOwner, userId }) => {
             )}
           </div>
         )}
-        {activeTab === "playlist" && isOwner && <div>Playlist Content</div>}
+        {activeTab === "watch History" && isOwner && 
+        <div>
+         {watchHistory?.data?.length > 0 ? (
+              <div className="flex flex-wrap justify-center items-center gap-4 p-2 mx-2">
+                {watchHistory?.data.map((video) => (
+                  <VideoCard
+                    key={video._id}
+                    {...video}
+                    isOwner={isOwner}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-2xl md:text-2xl md:mx-40 mb-11 font-bold p-8 text-center">
+                no watch history videos
+              </div>
+            )}
+        </div>}
       </div>
     </div>
   );

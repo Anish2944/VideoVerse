@@ -370,51 +370,28 @@ const getUserChannelProfile = asyncHandler(async (req,res) => {
     return res.status(200).json( new ApiResponse(200, channel[0],"User channel fetched Successfully"))
 })
 
-const getWatchHistory = asyncHandler(async(req,res) => {
-    const user = await User.aggregate([
-        {
-            $match: {
-                _id: new mongoose.Types.ObjectId(req.user?._id)
-            }
-        },
-        {
-            $lookup: {
-                from: "Videos",
-                localField: "watchHistory",
-                foreignField: "_id",
-                as: "watchHistory",
-                pipeline: [
-                    {
-                        $lookup: {
-                            from: "Videos",
-                            localField: "owner",
-                            foreignField: "_id",
-                            as: "owner",
-                            pipeline: [{
-                                $project: {
-                                    fullName: 1,
-                                    username: 1,
-                                    avatar: 1
-                                }
-                            }]
-                        }
-                    },
-                    {
-                        $addFields: {
-                            owner: {
-                                $first: "$owner"
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-    ]);
-    if (!user) {
-        throw new ApiError(400, "error while fetching watchHistory")
+const getWatchHistory = asyncHandler(async (req, res) => {
+    try {
+      const user = await User.findById(req.user?._id)
+        .populate({
+          path: "watchHistory",
+          populate: {
+            path: "owner",
+            select: "fullName username avatar",
+          },
+        })
+        .exec();
+  
+      if (!user) {
+        throw new ApiError(400, "Error while fetching watch history");
+      }
+  
+      return res.status(200).json(new ApiResponse(200, user.watchHistory, "Watch History Fetched"));
+    } catch (error) {
+      throw new ApiError(500, "Internal Server Error");
     }
-    return res.status(200).json( new ApiResponse(200, user[0].watchHistory, "WatchHistory Fetched"))
-})
+  });
+  
 
 export {
     registerUser,

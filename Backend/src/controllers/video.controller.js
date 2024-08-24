@@ -248,6 +248,41 @@ const getAllUserVideos = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200,userVideos," videos found "))
 })
 
+const setWatchHistory = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+    const userId = req.user.id;
+
+    if (!userId) {
+        throw new ApiError(400, "User is missing or unauthorized");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Add the new video ID to the watchHistory array
+    // Remove it first if it already exists (to prevent duplicates)
+    user.watchHistory = user.watchHistory.filter(id => id.toString() !== videoId);
+
+    // Add the new video ID to the beginning (to make it the latest)
+    user.watchHistory.unshift(videoId);
+
+    // Check if the length exceeds 15, and remove oldest entries
+    const maxHistoryLength = 15;
+    if (user.watchHistory.length > maxHistoryLength) {
+        // Keep only the most recent 15 entries
+        user.watchHistory = user.watchHistory.slice(0, maxHistoryLength);
+    }
+
+    await user.save();
+
+    return res.status(201).json(new ApiResponse(201, user.watchHistory, "Video added to watch history successfully"));
+});
+
+  
+  
+
 export {
     getAllVideos,
     publishAVideo,
@@ -256,5 +291,6 @@ export {
     deleteVideo,
     togglePublishStatus,
     incrementViews,
-    getAllUserVideos
+    getAllUserVideos,
+    setWatchHistory
 }

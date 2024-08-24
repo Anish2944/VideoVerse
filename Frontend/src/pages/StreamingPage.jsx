@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useGetVideoByIdQuery,
+  useSetWatchHistoryMutation,
   useToggelSubscriptionMutation,
 } from "../services/videoApi";
 import { useGetChannelProfileQuery } from "../services/userApi";
@@ -14,16 +15,12 @@ const StreamingPage = () => {
   const navigate = useNavigate();
   const { data, isLoading, error } = useGetVideoByIdQuery(videoId);
   const [videoData, setVideoData] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
 
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const currentuser = useSelector((state) => state.auth.user);
   const isOwner =
     isAuthenticated && currentuser?.data?.username === videoData?.channel;
 
-  const toggleAccordion = () => {
-    setIsOpen(!isOpen);
-  };
   const avatarClick = () => {
     navigate(`/chprofile/${videoData?.channel}`);
   };
@@ -33,8 +30,22 @@ const StreamingPage = () => {
       skip: !videoData?.channel,
     }
   );
-
   const [toggelSubs] = useToggelSubscriptionMutation();
+  const [setWatchHistory] = useSetWatchHistoryMutation();
+
+  useEffect(() => {
+    const addToWatchHistory = async () => {
+      try {
+        await setWatchHistory(videoId);
+      } catch (error) {
+        console.error("Failed to set watch history:", error);
+      }
+    };
+  
+    addToWatchHistory();
+  }, [videoId]);
+  
+
   const handleSubs = async () => {
     await toggelSubs(videoData?.owner);
     refetch();
@@ -83,7 +94,7 @@ const StreamingPage = () => {
                   <button
                     onClick={handleSubs}
                     className={`btn ${
-                      user?.data?.isSubscribed ? "btn-outline btn-secondary" : "btn-primary"
+                      user?.data?.isSubscribed ? "btn-outline btn-error" : "btn-primary"
                     }`}
                   >
                     {user?.data?.isSubscribed ? "Unsubscribe" : "Subscribe"}
