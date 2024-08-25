@@ -125,7 +125,7 @@ const VideoForm = ({ videoId }) => {
 
   return (
     <div className="max-w-lg mx-auto my-5 p-6 bg-base-300 rounded-box">
-      <h2 className="text-2xl font-bold mb-6">Upload Video</h2>
+      <h2 className="text-2xl text-center font-bold mb-6">Upload Video</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         {/* Video File Input */}

@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useState } from "react";
 import { HiOutlineMenuAlt1, HiOutlineSun, HiOutlineMoon } from "react-icons/hi";
 import { TfiSearch } from "react-icons/tfi";
+import { RxCross2 } from "react-icons/rx";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useLogoutUserMutation } from "../services/userApi"; // Adjust path to your API service
@@ -14,13 +15,23 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const showSearchBar = location.pathname === '/';
+  const showSearchBar = location.pathname === "/";
   const { setSearchQuery } = useContext(SearchContext);
   const [inputValue, setInputValue] = useState("");
+  const [isMobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
     setSearchQuery(inputValue);
+  };
+
+  const handleSearchToggle = () => {
+    setMobileSearchOpen(!isMobileSearchOpen);
+  };
+
+  const handleCloseSearch = () => {
+    setMobileSearchOpen(false);
+    setInputValue("");
   };
 
   const handleLogout = useCallback(async () => {
@@ -66,6 +77,9 @@ const Navbar = () => {
                   <Link to="/upload-video">upload video</Link>
                 </li>
                 <li>
+                  <Link to="/playlists">Playlist</Link>
+                </li>
+                <li>
                   <button onClick={handleLogout}>Logout</button>
                 </li>
               </>
@@ -74,31 +88,55 @@ const Navbar = () => {
         </div>
       </div>
       <div className="navbar-center text-primary">
-        <Link to="/" className=" font-bold text-2xl">
+        <Link to="/" className={`${
+                !isMobileSearchOpen ? "flex" : "hidden"
+              } sm:block font-bold text-2xl`}>
           Videoverse
         </Link>
       </div>
       <div className="navbar-end gap-2">
-        {showSearchBar && <form
-          onSubmit={handleSearch}
-          className="hidden sm:flex items-center gap-2"
-        >
-          <label className="relative flex items-center">
-            <input
-              type="text"
-              className="input input-bordered w-36 md:w-40 lg:w-60 p-2 text-sm bg-base-200 placeholder-gray-400 rounded-lg"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Search..."
-            />
-            <button
-              type="submit"
-              className="absolute right-3 text-gray-500 hover:text-gray-300"
+        {showSearchBar && (
+          <>
+            <form
+              onSubmit={handleSearch}
+              className={`${
+                isMobileSearchOpen ? "flex" : "hidden"
+              } sm:flex items-center gap-2`}
             >
-              <TfiSearch className="text-lg" />
-            </button>
-          </label>
-        </form>}
+              <label className="relative flex items-center">
+                <input
+                  type="text"
+                  className="input input-bordered w-40 md:w-40 lg:w-60 p-2 text-sm bg-base-200 placeholder-gray-400 rounded-lg"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Search..."
+                />
+                <button
+                  type="submit"
+                  className="absolute right-3 text-gray-500 hover:text-gray-300"
+                >
+                  <TfiSearch className="text-lg" />
+                </button>
+              </label>
+            </form>
+            {!isMobileSearchOpen && (
+              <button
+                className="sm:hidden btn rounded-full block"
+                onClick={handleSearchToggle}
+              >
+                <TfiSearch className="text-xl" />
+              </button>
+            )}
+            {isMobileSearchOpen && (
+              <button
+                className="sm:hidden btn rounded-full block"
+                onClick={handleSearchToggle}
+              >
+                <RxCross2 className="text-xl" />
+              </button>
+            )}
+          </>
+        )}
 
         <label className="swap swap-rotate">
           {/* this hidden checkbox controls the state */}

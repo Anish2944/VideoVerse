@@ -94,7 +94,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
-    if (!videoId) {
+    if (!videoId || !mongoose.Types.ObjectId.isValid(videoId)) {
         throw new ApiError(400, "Video is Missing")
     }
 
@@ -251,34 +251,47 @@ const getAllUserVideos = asyncHandler(async (req, res) => {
 const setWatchHistory = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
     const userId = req.user.id;
-
+  
     if (!userId) {
-        throw new ApiError(400, "User is missing or unauthorized");
+      throw new ApiError(400, "User is missing or unauthorized");
     }
-
-    const user = await User.findById(userId);
-    if (!user) {
-        throw new ApiError(404, "User not found");
-    }
-
-    // Add the new video ID to the watchHistory array
-    // Remove it first if it already exists (to prevent duplicates)
-    user.watchHistory = user.watchHistory.filter(id => id.toString() !== videoId);
-
-    // Add the new video ID to the beginning (to make it the latest)
-    user.watchHistory.unshift(videoId);
-
-    // Check if the length exceeds 15, and remove oldest entries
-    const maxHistoryLength = 15;
-    if (user.watchHistory.length > maxHistoryLength) {
-        // Keep only the most recent 15 entries
+  
+    const maxHistoryLength = 10;
+    const maxRetries = 3;
+    let retries = 0;
+  
+    while (retries < maxRetries) {
+      try {
+        const user = await User.findById(userId);
+  
+        if (!user) {
+          throw new ApiError(404, "User not found");
+        }
+  
+        // Remove the videoId if it exists
+        user.watchHistory = user.watchHistory.filter(id => id.toString() !== videoId);
+  
+        // Add the videoId to the beginning
+        user.watchHistory.unshift(videoId);
+  
+        // Trim the array to maxHistoryLength
         user.watchHistory = user.watchHistory.slice(0, maxHistoryLength);
+  
+        // Save the updated user
+        await user.save();
+  
+        return res.status(201).json(new ApiResponse(201, user.watchHistory, "Video added to watch history successfully"));
+      } catch (error) {
+        if (error.name === 'VersionError' && retries < maxRetries - 1) {
+          retries++;
+          continue;
+        }
+        throw error;
+      }
     }
-
-    await user.save();
-
-    return res.status(201).json(new ApiResponse(201, user.watchHistory, "Video added to watch history successfully"));
-});
+  
+    throw new ApiError(500, "Failed to update watch history after multiple attempts");
+  });
 
   
   

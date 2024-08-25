@@ -7,6 +7,8 @@ import Login from "./Login";
 import Registration from "./Registration";
 import VideoForm from "./VideoForm";
 import UpdateVideo from "./UpdateVideo";
+import Playlists from "./Playlists";
+import ViewPlaylist from "./ViewPlaylist";
 
 export {
     VideoForm,
@@ -17,5 +19,7 @@ export {
     OthersProfile,
     Login,
     Registration,
-    UpdateVideo
+    UpdateVideo,
+    Playlists,
+    ViewPlaylist
 }

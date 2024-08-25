@@ -10,7 +10,8 @@ import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 
 import { UserProfile, OthersProfile, NotFound,
-   Home, Login, Registration, StreamingPage, VideoForm, UpdateVideo} from './pages/index.js'
+   Home, Login, Registration, StreamingPage, VideoForm,
+    UpdateVideo, Playlists, ViewPlaylist} from './pages/index.js'
 
 import { SearchProvider } from './context/SearchContext.jsx'
 
@@ -77,9 +78,27 @@ function App() {
           </PrivateRoute>} 
           />
           <Route path="/chprofile/:username" element={<OthersProfile />} />
-          <Route path="/video/:videoId" element={<StreamingPage />} />
+          <Route path="/video/:videoId" element={
+            <PrivateRoute>
+              <StreamingPage />
+            </PrivateRoute>
+          } />
           <Route path="/upload-video" element={<VideoForm />} />
-          <Route path="/update-video/:videoId" element={<UpdateVideo />} />
+          <Route path="/update-video/:videoId" element={
+            <PrivateRoute>
+              <UpdateVideo />
+            </PrivateRoute>
+          } />
+          <Route path="/playlists" element={
+            <PrivateRoute>
+              <Playlists />
+            </PrivateRoute>
+          } />
+          <Route path="/playlist/:playlistId" element={
+            <PrivateRoute>
+              <ViewPlaylist />
+            </PrivateRoute>
+          } />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

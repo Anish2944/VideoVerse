@@ -6,45 +6,58 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 
 
 const createPlaylist = asyncHandler(async (req, res) => {
-    const {name, description} = req.body
-    //TODO: create playlist
-    if (!name || !description) {
-        throw new ApiError(401, "name and description both are required")
+    const { name, videoId } = req.body;
+  
+    if (!name) {
+      throw new ApiError(400, "Playlist name is required");
     }
+  
     const owner = req.user._id;
     if (!owner) {
-        throw new ApiError(401, "owner not found")
+      throw new ApiError(401, "Owner not found");
     }
-    const playlist = await Playlist.create({
-        name,
-        description,
-        videos: [],
-        owner
-    })
+  
+    const playlistData = {
+      name,
+      owner,
+    };
+
+    if (videoId || mongoose.Types.ObjectId.isValid(videoId)) {
+      playlistData.videos = [videoId];
+    }
+  
+    const playlist = await Playlist.create(playlistData);
+  
     if (!playlist) {
-        throw new ApiError(500, "Something went wrong while creating playlist")
+      throw new ApiError(500, "Something went wrong while creating the playlist");
     }
-
-    return res.status(201).json(new ApiResponse(201, playlist, "Playlist created successfully"))
-
-})
+  
+    return res.status(201).json(new ApiResponse(201, playlist, "Playlist created successfully"));
+  });
+  
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
-    const {userId} = req.params
-    //TODO: get user playlists
+    const { userId } = req.params;
+
     if (!userId) {
-        throw new ApiError(404, "User not found")
+        throw new ApiError(404, "User not found");
     }
 
-    const playlists = await Playlist.find({owner: userId})
-    .sort({createdAt: -1})
+    // Fetch playlists and populate video thumbnails
+    const playlists = await Playlist.find({ owner: userId })
+        .populate({
+            path: 'videos',
+            select: 'thumbnail', // Fetch only the thumbnail field from videos
+        })
+        .sort({ createdAt: -1 });
 
-    if (!playlists) {
-        throw new ApiError(404, "Playlists not found")
+    if (!playlists || playlists.length === 0) {
+        throw new ApiError(404, "Playlists not found");
     }
 
-    return res.status(201).json(new ApiResponse(201,playlists,"user playlists fetched successfully"))
-})
+    return res.status(200).json(new ApiResponse(200, playlists, "User playlists fetched successfully"));
+});
+
 
 const getPlaylistById = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
@@ -53,7 +66,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Playlist not found")
     }
     
-    const playlist = await Playlist.findById(playlistId)
+    const playlist = await Playlist.findById(playlistId).populate('videos')
     if (!playlist) {
         throw new ApiError(404, "requested playlist not found")
     }
@@ -118,24 +131,25 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 })
 
 const updatePlaylist = asyncHandler(async (req, res) => {
-    const {playlistId} = req.params
-    if (!playlistId) {
-        throw new ApiError(400,"Playlist is missing")
+    const { name, description } = req.body;
+
+    if (!name || !description) {
+        throw new ApiError(400, "Name and description are required");
     }
-    const {name, description} = req.body
-    //TODO: update playlist
-    const playlist = await Playlist.findById(playlistId)
+
+    const playlist = await Playlist.findByIdAndUpdate(
+        req.params.playlistId,
+        { name, description },
+        { new: true }
+    );
+
     if (!playlist) {
-        throw new ApiError(404,"Playlist not found")
+        throw new ApiError(404, "Playlist not found");
     }
 
-    if(name) playlist.name = name;
-    if(description) playlist.description = description;
-    await Playlist.save();
+    res.status(200).json(new ApiResponse(200, playlist, "Playlist updated successfully"));
+});
 
-    return res.status(201).json(new ApiResponse(201, playlist, "playlist updated successfully"))
-
-})
 
 export {
     createPlaylist,

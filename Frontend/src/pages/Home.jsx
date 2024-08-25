@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import VideoCard from "../components/VideoCard";
 import { useGetAllVideosQuery } from "../services/videoApi";
 import { SearchContext } from "../context/SearchContext";

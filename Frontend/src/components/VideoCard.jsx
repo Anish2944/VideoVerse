@@ -4,6 +4,7 @@ import { RxUpdate } from "react-icons/rx";
 import { Link, useNavigate } from "react-router-dom";
 import { useDeleteVideoByIdMutation, useIncViewsMutation } from "../services/videoApi";
 import { CiMenuKebab } from "react-icons/ci";
+import { useRemoveVideoFromPlaylistMutation } from "../services/playlistApi";
 
 const VideoCard = ({
   thumbnail,
@@ -14,10 +15,13 @@ const VideoCard = ({
   createdAt,
   _id,
   isOwner,
+  playlistId
 }) => {
   const timeAgo = formatDistanceToNow(new Date(createdAt), { addSuffix: true });
 
   const [deleteVideo, {isLoading}] = useDeleteVideoByIdMutation();
+
+  const [removeFromPlaylist] = useRemoveVideoFromPlaylistMutation();
 
   const [incViews] = useIncViewsMutation();
   const navigate = useNavigate();
@@ -36,6 +40,10 @@ const VideoCard = ({
 
   const handleUpdate = () => {
     navigate(`/update-video/${_id}`)
+  }
+
+  const handleRemoveVFromPlay = async () => {
+    await removeFromPlaylist({playlistId, videoId: _id})
   }
 
   return (
@@ -82,6 +90,19 @@ const VideoCard = ({
             </li>
             <li>
               <button className=" text-error" onClick={handleDelete} >Delete</button>
+            </li>
+          </ul>
+        </div>}
+        {playlistId && <div className="dropdown absolute right-1 dropdown-top dropdown-end">
+          <div tabIndex={0} role="button" className="btn rounded-full m-1">
+            <CiMenuKebab/>
+          </div>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+          >
+            <li>
+            <button className="text-error" onClick={handleRemoveVFromPlay} >Remove from playlist</button>
             </li>
           </ul>
         </div>}
