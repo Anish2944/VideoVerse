@@ -4,7 +4,7 @@ import { userApi } from '../services/userApi';  // Import your RTK Query API sli
 import authreducer from './authSlice';
 import { videoApi } from '../services/videoApi';
 import { LikeNCommentApi } from '../services/LikeNCommentApi';
-import { playlistApi } from '../services/playlistapi';
+import { playlistApi } from '../services/playlistApi';
 
 const store = configureStore({
   reducer: {
