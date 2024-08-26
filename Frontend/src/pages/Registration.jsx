@@ -8,14 +8,13 @@ import { useRegisterUserMutation } from "../services/userApi";
 import { useDispatch } from "react-redux";
 import { login } from "../app/authSlice";
 
-
 const Registration = () => {
   const {
     register,
     handleSubmit,
     setError,
     clearErrors,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -25,8 +24,13 @@ const Registration = () => {
     useRegisterUserMutation();
   const [serverError, setServerError] = useState(null);
 
+
+  const onFileChange = (file) => {
+    setSelectedFile(file);
+    clearErrors("avatar"); // Clear the avatar error when a file is selected
+  };
+
   const onSubmit = async (data) => {
-    
     if (!selectedFile) {
       setError("avatar", {
         type: "manual",
@@ -34,6 +38,7 @@ const Registration = () => {
       });
       return;
     }
+    
     const formData = new FormData();
     formData.append("fullName", data.fullName);
     formData.append("username", data.username);
@@ -43,8 +48,8 @@ const Registration = () => {
 
     try {
       const response = await registerUser(formData).unwrap();
-      const token = localStorage.setItem('token', response.data.accessToken);
-      dispatch(login({user: response.data, token}));
+      localStorage.setItem('token', response.data.accessToken); // Store token in localStorage
+      dispatch(login({ user: response.data, token: response.data.accessToken }));
 
       if (response.success) {
         setSuccess(true);
@@ -56,7 +61,7 @@ const Registration = () => {
     }
   };
 
-  //Naviating to homePage without side-effects
+  // Navigating to homepage without side-effects
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
@@ -66,6 +71,11 @@ const Registration = () => {
       return () => clearTimeout(timer); // Clear timeout on cleanup
     }
   }, [success, navigate]);
+
+  // Debugging isLoading state
+  useEffect(() => {
+    console.log('isLoading:', isLoading);
+  }, [isLoading]);
 
   return (
     <div className="flex flex-col px-10 bg-base-300 p-8 rounded-box justify-center">
@@ -77,7 +87,11 @@ const Registration = () => {
       <div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-3">
-            <ProfileImageInput onFileChange={(file) => setSelectedFile(file)} />
+            <ProfileImageInput onFileChange={onFileChange} />
+            {/* Display error if profile picture is not provided */}
+            {errors.avatar && (
+              <span className="text-error">{errors.avatar.message}</span>
+            )}
 
             <label className="input input-bordered flex items-center gap-2">
               Name:
@@ -129,25 +143,24 @@ const Registration = () => {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !isValid}
               className="btn btn-primary"
             >
-              {isLoading ? <span className="loading loading-bars loading-sm"></span>  : "Register"}
+              {isLoading ? <span className="loading loading-bars loading-sm"></span> : "Register"}
             </button>
           </div>
           {isSuccess && (
             <div role="alert" className="alert z-10 fixed top-1 w-1/5 alert-success">
               <SiTicktick />
-              <span>Registraion Successfull!</span>
+              <span>Registration Successful!</span>
             </div>
           )}
           {error && (
             <div role="alert" className="alert alert-error z-10 fixed top-1 w-1/4">
-            <RxCrossCircled />
-            <span>{serverError || "Failed to register. Please try again."}</span>
-          </div>
+              <RxCrossCircled />
+              <span>{serverError || "Failed to register. Please try again."}</span>
+            </div>
           )}
-          
         </form>
         <p className="mt-2 text-center text-base text-text2">
           Already have an account?&nbsp;

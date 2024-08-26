@@ -7,6 +7,13 @@ const backendURL = import.meta.env.VITE_BACKEND_URL;
 const baseQuery = fetchBaseQuery({
   baseUrl: `${backendURL}/api/v1/users`,
   credentials: 'include', // Ensures cookies are included in requests
+  prepareHeaders: (headers) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`); // Add token to headers
+    }
+    return headers;
+  },
 });
 
 // 2. Base query with automatic token refresh handling
@@ -24,11 +31,11 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 
     if (refreshResult.data) {
       // Retry the original request with the new token
+      localStorage.setItem('token', refreshResult.data.accessToken);
       result = await baseQuery(args, api, extraOptions);
     } else {
       // Handle failed refresh (e.g., log out the user)
-      api.dispatch(userApi.util.resetApiState()); // Corrected: userApi instead of apiSlice
-      // Optionally redirect to login or show a logout message
+      api.dispatch(userApi.util.resetApiState());
     }
   }
 

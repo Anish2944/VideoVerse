@@ -18,8 +18,8 @@ const Login = () => {
     const onSubmit = async (formData) => {
       try {
         const response = await loginUser(formData).unwrap();
-        const token = localStorage.setItem('token', response.data.accessToken);
-        dispatch(login({user: response.data, token}));
+        localStorage.setItem('token', response.data.accessToken); // Store token in localStorage
+        dispatch(login({ user: response.data, token: response.data.accessToken }));
       
         if (!response.success) {
           // Display the error message from the backend
