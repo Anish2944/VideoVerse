@@ -26,10 +26,9 @@ function App() {
 
       if (token) {
         try {
-          const res = await getCurrentUser(); // Assume this returns a promise with user data
+          const res = await getCurrentUser();
 
           if (res.data) {
-            // Ensure user data contains username or required fields
             dispatch(login(res.data));
           } else {
             console.error("No user data received:", res);
