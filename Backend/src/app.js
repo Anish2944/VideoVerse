@@ -5,24 +5,12 @@ import { ApiError } from './utils/ApiError.js'
 
 const app = express()
 
-const allowedOrigins = process.env.CORS_ORIGIN.split(',').map(origin => origin.trim());
-
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (e.g., mobile apps, Postman)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: '*',
     methods: '*',
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-}));
-
+    allowedHeaders: ['Content-Type','Authorization'],
+    credentials: true
+}))
 app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
