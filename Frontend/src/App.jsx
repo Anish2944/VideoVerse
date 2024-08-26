@@ -52,7 +52,9 @@ function App() {
             path="/"
             element={
               <div className="flex justify-center items-center h-full">
-                <Home />
+                <PrivateRoute>
+                  <Home />
+                </PrivateRoute>
               </div>
             }
           />
