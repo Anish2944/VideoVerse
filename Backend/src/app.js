@@ -6,11 +6,13 @@ import { ApiError } from './utils/ApiError.js'
 const app = express()
 
 app.use(cors({
-    origin: '*',
-    methods: '*',
+    origin: 'https://video-verse-qrq1.vercel.app', 
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type','Authorization'],
     credentials: true
 }))
+app.options('*', cors()); // Enable pre-flight requests for all routes
+
 app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
