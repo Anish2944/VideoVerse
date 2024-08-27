@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 
 const LikeShareButtons = ({ videoId }) => {
   const [Alert, setAlert] = useState(false);
-  const currentUsername = useSelector((state) => state.auth.user.data.username);
+  const currentUsername = useSelector((state) => state.auth.user.username);
   const { data: likes } = useGetNLikesOnVideoByIdQuery(videoId);
 
   const userExists =
@@ -56,18 +56,22 @@ const LikeShareButtons = ({ videoId }) => {
         <FaShareAlt /> Share
       </button>
       {Alert && (
-        <div role="alert" className="alert alert-success z-20 absolute right-1 top-20 w-1/5">
-          <SiTicktick />
-          <span>Thanks for sharing!</span>
-          <div>
-            <button
-              onClick={() => setAlert(false)}
-              className="btn btn-sm btn-ghost"
-            >
-              X
-            </button>
-          </div>
+        <div
+        role="alert"
+        className="alert alert-success w-11/12 max-w-md z-20 absolute right-2 top-20 sm:right-4 sm:w-2/3 md:w-1/2 lg:w-1/3 xl:w-1/5"
+      >
+        <SiTicktick />
+        <span className="ml-2">Thanks for sharing!</span>
+        <div>
+          <button
+            onClick={() => setAlert(false)}
+            className="btn btn-sm btn-ghost"
+          >
+            X
+          </button>
         </div>
+      </div>
+      
       )}
     </div>
   );

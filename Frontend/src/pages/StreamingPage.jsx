@@ -27,7 +27,7 @@ const StreamingPage = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const currentuser = useSelector((state) => state.auth.user);
   const isOwner =
-    isAuthenticated && currentuser?.data?.username === videoData?.channel;
+    isAuthenticated && currentuser?.username === videoData?.channel;
 
   const avatarClick = () => {
     navigate(`/chprofile/${videoData?.channel}`);
@@ -39,7 +39,7 @@ const StreamingPage = () => {
     }
   );
   const { data: userPlaylists } = useGetUserPlaylistsQuery(
-    currentuser?.data?._id
+    currentuser?._id
   );
 
   const [toggelSubs] = useToggelSubscriptionMutation();
@@ -122,7 +122,7 @@ const StreamingPage = () => {
                 {/* Add to Playlist Button */}
                 <div className=" flex justify-end px-5">
                   <button
-                    className="btn btn-outline btn-secondary"
+                    className="btn btn-sm btn-outline btn-secondary"
                     onClick={() => setShowPlaylistModal(true)}
                   >
                     +
@@ -132,7 +132,7 @@ const StreamingPage = () => {
                 {!isOwner && (
                   <button
                     onClick={handleSubs}
-                    className={`btn ${
+                    className={`btn sm:btn-md ${
                       user?.data?.isSubscribed
                         ? "btn-outline btn-error"
                         : "btn-primary"

@@ -15,7 +15,7 @@ const CommentBox = ({ username, avatar, content, createdAt, commentId }) => {
 
   const { data: likes } = useGetNLikesOnCommentByIdQuery(commentId);
 
-  const currentUsername = useSelector(state => state.auth.user.data.username);
+  const currentUsername = useSelector(state => state.auth.user.username);
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const isOwner = isAuthenticated && (currentUsername === username);
 

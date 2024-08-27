@@ -150,7 +150,7 @@ const Registration = () => {
             </button>
           </div>
           {isSuccess && (
-            <div role="alert" className="alert z-10 fixed top-1 w-1/5 alert-success">
+            <div role="alert" className="alert z-10 fixed top-1 w-1/3 sm:w-1/5 alert-success">
               <SiTicktick />
               <span>Registration Successful!</span>
             </div>

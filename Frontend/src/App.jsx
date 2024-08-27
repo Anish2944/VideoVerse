@@ -26,7 +26,7 @@ function App() {
 
       if (token) {
         try {
-          const res = await getCurrentUser();
+          const res = await getCurrentUser().unwrap();
 
           if (res.data) {
             dispatch(login(res.data));

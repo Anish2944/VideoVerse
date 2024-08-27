@@ -60,7 +60,7 @@ const ViewPlaylist = () => {
           <h1 className="text-2xl font-bold">{data?.data?.name}</h1>
         )}
         <button
-          className={`btn btn-sm ${isEditing ? 'btn-success' : 'btn-secondary'} btn-outline`}
+          className={`btn btn-sm ${isEditing ? 'btn-success' : 'btn-secondary'} m-1 btn-outline`}
           onClick={isEditing ? handleSaveClick : handleEditClick}
         >
           {isEditing ? "Save" : "Edit Playlist"}

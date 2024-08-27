@@ -19,6 +19,7 @@ const baseQuery = fetchBaseQuery({
 // 2. Base query with automatic token refresh handling
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
+  console.log('Initial request result:', result);
 
   // If access token is expired, refresh the token
   if (result.error && result.error.status === 401) {
@@ -28,6 +29,8 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       api,
       extraOptions
     );
+    console.log('Refresh token result:', refreshResult);
+
 
     if (refreshResult.data) {
       // Retry the original request with the new token
@@ -79,6 +82,7 @@ export const userApi = createApi({
       query: () => ({
         url: '/refresh-token',
         method: 'POST',
+        body: { refreshToken: localStorage.getItem('refreshToken') } ,
       }),
     }),
     getChannelProfile: builder.query({

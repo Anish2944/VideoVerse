@@ -7,8 +7,8 @@ const UserProfile = () => {
   const [username, setUsername] = useState(null);
 
   useEffect(() => {
-    if (user?.data?.username) {
-      setUsername(user.data.username);
+    if (user?.username) {
+      setUsername(user.username);
     }
   }, [user]);
 

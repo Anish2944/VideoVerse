@@ -1,13 +1,11 @@
 import React from 'react';
-
-
 import PlaylistCard from '../components/PlaylistComponents/PlaylistCard';
 import { useSelector } from 'react-redux';
-import { useGetUserPlaylistsQuery } from '../services/playlistApi'
+import { useGetUserPlaylistsQuery } from '../services/playlistApi';
 
 const Playlists = () => {
 
-  const userId = useSelector(state => state.auth.user.data._id)
+  const userId = useSelector(state => state.auth.user?._id)
 
   const { data, isLoading, error } = useGetUserPlaylistsQuery(userId);
 
@@ -23,18 +21,22 @@ const Playlists = () => {
       </div>
     );
   }
-  if (error) return <div>Error fetching playlists: {error.message}</div>;
 
   return (
     <>
-    <div className='p-4 sm:mx-20 mx-2 sm:p-8'>
+    <div className='p-4 sm:mx-20 mx-3 sm:p-8'>
       <h1 className='font-bold text-3xl' >All Playlists</h1>
     </div>
-      <div className="flex sm:mx-20 mx-2 sm:p-8 flex-wrap sm:justify-start justify-center gap-6">
+
+      { data?.data.length > 0 ? (<div className="flex sm:mx-20 mx-2 sm:p-8 flex-wrap sm:justify-start justify-center gap-6">
         {data?.data?.map((playlist) => (
           <PlaylistCard key={playlist._id} playlist={playlist} />
         ))}
-      </div>
+      </div>) : (
+        <div className='mt-20'>
+          <h1 className='font-bold text-center text-error text-3xl' >No playlist found</h1>
+        </div>
+      )}
     </>
   );
 };

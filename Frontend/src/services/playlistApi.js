@@ -48,7 +48,7 @@ export const playlistApi = createApi({
         url: `/${playlistId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Playlist']
+      invalidatesTags: ['createPlaylist']
     }),
     addVideoToPlaylist: builder.mutation({
       query: ({playlistId, videoId}) => ({

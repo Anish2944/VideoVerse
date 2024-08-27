@@ -48,7 +48,7 @@ const VideoCard = ({
 
   return (
     <>
-    <div className="card h-fit relative w-[40%] min-w-[400px] sm:w-[30%] sm:min-w-[300px] bg-base-200 shadow-xl">
+    <div className="card h-fit relative w-[30%] min-w-[300px] bg-base-200 shadow-xl">
       <figure>
         <img
           onClick={thumbnailClick}

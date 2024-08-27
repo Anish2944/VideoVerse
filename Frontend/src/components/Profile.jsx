@@ -21,7 +21,7 @@ const Profile = ({ username }) => {
 
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const currentuser = useSelector((state) => state.auth.user);
-  const isOwner = isAuthenticated && currentuser?.data?.username === username;
+  const isOwner = isAuthenticated && currentuser?.username === username;
 
   const {
     data: user,

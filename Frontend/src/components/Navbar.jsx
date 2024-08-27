@@ -18,6 +18,7 @@ const Navbar = () => {
   const showSearchBar = location.pathname === "/";
   const { setSearchQuery } = useContext(SearchContext);
   const [inputValue, setInputValue] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isMobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const handleSearch = (e) => {
@@ -34,12 +35,20 @@ const Navbar = () => {
     setInputValue("");
   };
 
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const closeDropdown = () => {
+    setDropdownOpen(false);
+  };
+
   const handleLogout = useCallback(async () => {
     try {
       await logoutUser().unwrap();
       localStorage.removeItem("token");
       dispatch(logout());
-      navigate("/login"); // Redirect to login page on successful logout
+      navigate("/login"); 
     } catch (err) {
       console.error("Logout failed:", err);
     }
@@ -49,11 +58,14 @@ const Navbar = () => {
     <div className="navbar bg-base-200 sticky top-0 z-10 ">
       <div className="navbar-start">
         <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
+          <div tabIndex={0} role="button"
+           onClick={toggleDropdown}
+           className="btn btn-ghost btn-circle">
             <HiOutlineMenuAlt1 className="text-2xl" />
           </div>
-          <ul
+          {dropdownOpen && <ul
             tabIndex={0}
+            onClick={closeDropdown}
             className="menu menu-m dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
           >
             <li>
@@ -84,7 +96,7 @@ const Navbar = () => {
                 </li>
               </>
             )}
-          </ul>
+          </ul>}
         </div>
       </div>
       <div className="navbar-center text-primary">
@@ -130,7 +142,7 @@ const Navbar = () => {
             {isMobileSearchOpen && (
               <button
                 className="sm:hidden btn rounded-full block"
-                onClick={handleSearchToggle}
+                onClick={handleCloseSearch}
               >
                 <RxCross2 className="text-xl" />
               </button>
@@ -167,7 +179,7 @@ const Navbar = () => {
             >
               <div className="w-10 sm:w-16 rounded-full">
                 <Link to="/myprofile">
-                  <img alt="User Avatar" src={user?.data?.avatar} />
+                  <img alt="User Avatar" src={user?.avatar} />
                 </Link>
               </div>
             </div>
