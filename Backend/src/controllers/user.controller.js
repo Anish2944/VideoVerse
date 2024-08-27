@@ -21,7 +21,6 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage && req.files.coverImage.length > 0)) {
         coverImageLocalPath = req.files.coverImage[0].path
@@ -38,17 +37,15 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(500, "failed to upload")
     }
 
-    //creation
     const user = await User.create({
         fullName,
         avatar: avatar.url,
-        coverImage: coverImage?.url || "", //by default empty, as this file is optional 
+        coverImage: coverImage?.url || "",
         username: username.toLowerCase(),
         email,
         password,
     });
 
-    //checking usercreation by removing password and refresh token
     const createdUser = await User.findById(user._id).select("-Password -refreshToken") //by default all selected thats why using minus symbol we are unselecting  
 
     if (!createdUser) {
@@ -60,6 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const options = {
         httpOnly: true,
         secure: true, // Ensure this is set to true in production
+        maxAge: process.env.COOKIE_EXPIRY,
     };
     res.cookie("accessToken", accessToken, options);
     res.cookie("refreshToken", refreshToken, options);
