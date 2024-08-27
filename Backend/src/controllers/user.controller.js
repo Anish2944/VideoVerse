@@ -8,25 +8,11 @@ import mongoose from "mongoose"
 
 
 const registerUser = asyncHandler(async (req, res) => {
-    // get user details from frontend
-    // validation- not empty
-    // check if user already existby username or email
-    // check for image , avatar etc...
-    // upload them on cloudinary type service(multer->clodinry)
-    // create user object- create entry in database
-    // remove password and refresh token fields from response
-    // check for user creation
-    // return response
-    const { fullName, email, username, password } = req.body //all data comes in req.body except files/images etc.
-    // console.log(username)
-
-
-    // If any fields are missing by user || VALIDATION
+    const { fullName, email, username, password } = req.body
     if ([fullName, email, username, password].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required")
     }
 
-    // checking if user already exist
     const existedUser = await User.findOne({
         $or: [{ username }, { email }]
     })
@@ -34,8 +20,6 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "User already exist")
     }
 
-    // console.log(req.files)
-    //getting file path , using multer it gives access ton use req.files
     const avatarLocalPath = req.files?.avatar[0]?.path;
     // const coverImageLocalPath = req.files?.coverImage[0]?.path;
     let coverImageLocalPath;
@@ -43,11 +27,10 @@ const registerUser = asyncHandler(async (req, res) => {
         coverImageLocalPath = req.files.coverImage[0].path
     }
 
-    if (!avatarLocalPath) { //checking only avtar as it required during registration
+    if (!avatarLocalPath) { 
         throw new ApiError(400, "Avatar file is required")
     }
 
-    //uploading files on cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     const coverImage = coverImageLocalPath ? await uploadOnCloudinary(coverImageLocalPath) : null;
 
@@ -71,9 +54,18 @@ const registerUser = asyncHandler(async (req, res) => {
     if (!createdUser) {
         throw new ApiError(500, "Something went wrong while registering user")
     }
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+
+    // Set the tokens in cookies (optional)
+    const options = {
+        httpOnly: true,
+        secure: true, // Ensure this is set to true in production
+    };
+    res.cookie("accessToken", accessToken, options);
+    res.cookie("refreshToken", refreshToken, options);
 
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "User Registered Successfully")
+        new ApiResponse(200, { user: createdUser, accessToken }, "User Registered Successfully")
     )
 });
 

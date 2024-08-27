@@ -48,6 +48,7 @@ const Registration = () => {
 
     try {
       const response = await registerUser(formData).unwrap();
+      console.log(response)
       localStorage.setItem('token', response.data.accessToken); // Store token in localStorage
       dispatch(login({ user: response.data, token: response.data.accessToken }));
 
