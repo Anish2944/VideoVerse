@@ -119,6 +119,12 @@ const Profile = ({ username }) => {
                 >
                   <img src={camIcon} alt="Upload" className="inline mr-2" />
                   Upload Cover Image
+                  <input
+                    type="file"
+                    ref={coverImageInputRef}
+                    className="hidden"
+                    onChange={handleCoverImageChange}
+                  />
                 </button>
               )}
             </div>
