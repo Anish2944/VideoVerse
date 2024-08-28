@@ -39,10 +39,6 @@ const createPlaylist = asyncHandler(async (req, res) => {
 const getUserPlaylists = asyncHandler(async (req, res) => {
     const { userId } = req.params;
 
-    if (!userId) {
-        throw new ApiError(404, "User not found");
-    }
-
     // Fetch playlists and populate video thumbnails
     const playlists = await Playlist.find({ owner: userId })
         .populate({

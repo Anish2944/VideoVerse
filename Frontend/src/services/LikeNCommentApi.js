@@ -26,6 +26,21 @@ export const LikeNCommentApi = createApi({
         url: `/likes/toggle/v/${videoId}`,
         method: 'POST',
       }),
+      // Optimistic update for toggling like on a video
+      onQueryStarted: async (videoId, { dispatch, queryFulfilled }) => {
+        const patchResult = dispatch(
+          LikeNCommentApi.util.updateQueryData('getNLikesOnVideoById', videoId, (draft) => {
+            console.log("onQueryHit")
+            draft.likesCount += 1; // Increment like count optimistically
+            draft.isLiked = !draft.isLiked; // Toggle like state optimistically
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo(); // Rollback if mutation fails
+        }
+      },
       invalidatesTags: ['vLike'],
     }),
     getNLikesOnCommentById: builder.query({
@@ -37,6 +52,20 @@ export const LikeNCommentApi = createApi({
         url: `/likes/toggle/c/${commentId}`,
         method: 'POST',
       }),
+      // Optimistic update for toggling like on a comment
+      onQueryStarted: async (commentId, { dispatch, queryFulfilled }) => {
+        const patchResult = dispatch(
+          LikeNCommentApi.util.updateQueryData('getNLikesOnCommentById', commentId, (draft) => {
+            draft.likesCount += 1; // Increment like count optimistically
+            draft.isLiked = !draft.isLiked; // Toggle like state optimistically
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo(); // Rollback if mutation fails
+        }
+      },
       invalidatesTags: ['cLike'],
     }),
     getLikedVideos: builder.query({
@@ -52,6 +81,19 @@ export const LikeNCommentApi = createApi({
         method: 'POST',
         body: { content },
       }),
+      // Optimistic update for adding a comment
+      onQueryStarted: async ({ videoId, content }, { dispatch, queryFulfilled }) => {
+        const patchResult = dispatch(
+          LikeNCommentApi.util.updateQueryData('getVideoComments', videoId, (draft) => {
+            draft.push({ id: 'temp-id', content, createdAt: new Date().toISOString() }); // Add a temporary comment
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo(); // Rollback if mutation fails
+        }
+      },
       invalidatesTags: ['comment'],
     }),
     updateVideoComment: builder.mutation({
@@ -60,6 +102,22 @@ export const LikeNCommentApi = createApi({
         method: 'PATCH',
         body: { content },
       }),
+      // Optimistic update for updating a comment
+      onQueryStarted: async ({ commentId, content }, { dispatch, queryFulfilled }) => {
+        const patchResult = dispatch(
+          LikeNCommentApi.util.updateQueryData('getVideoComments', undefined, (draft) => {
+            const comment = draft.find((c) => c.id === commentId);
+            if (comment) {
+              comment.content = content; // Update comment content optimistically
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo(); // Rollback if mutation fails
+        }
+      },
       invalidatesTags: ['comment'],
     }),
     deleteVideoComment: builder.mutation({
@@ -67,6 +125,19 @@ export const LikeNCommentApi = createApi({
         url: `/comments/c/${commentId}`,
         method: 'DELETE',
       }),
+      // Optimistic update for deleting a comment
+      onQueryStarted: async (commentId, { dispatch, queryFulfilled }) => {
+        const patchResult = dispatch(
+          LikeNCommentApi.util.updateQueryData('getVideoComments', undefined, (draft) => {
+            return draft.filter((comment) => comment.id !== commentId); // Optimistically remove the comment
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          patchResult.undo(); // Rollback if mutation fails
+        }
+      },
       invalidatesTags: ['comment'],
     }),
   }),

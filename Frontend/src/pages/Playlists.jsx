@@ -34,7 +34,7 @@ const Playlists = () => {
         ))}
       </div>) : (
         <div className='mt-20'>
-          <h1 className='font-bold text-center text-error text-3xl' >No playlist found</h1>
+          <h1 className='font-bold text-center text-info text-3xl' >No playlist found</h1>
         </div>
       )}
     </>
