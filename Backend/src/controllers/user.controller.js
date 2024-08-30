@@ -56,8 +56,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // Set the tokens in cookies (optional)
     const options = {
         httpOnly: true,
-        secure: true, // Ensure this is set to true in production
-        maxAge: process.env.COOKIE_EXPIRY,
+        secure: true, 
     };
     res.cookie("accessToken", accessToken, options);
     res.cookie("refreshToken", refreshToken, options);
@@ -122,7 +121,6 @@ const loginUser = asyncHandler(async (req, res) => {
     const options = {
         httpOnly: true,
         secure: true,
-        maxAge: process.env.COOKIE_EXPIRY,
     }
 
     return res.status(200)

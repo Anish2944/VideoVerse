@@ -82,7 +82,6 @@ export const userApi = createApi({
       query: () => ({
         url: '/refresh-token',
         method: 'POST',
-        body: { refreshToken: localStorage.getItem('refreshToken') } ,
       }),
     }),
     getChannelProfile: builder.query({
