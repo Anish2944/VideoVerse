@@ -19,7 +19,7 @@ const Home = () => {
     });
   
     useEffect(() => {
-      if (inView && data && page < data.totalPage) {
+      if (inView && data && page < data?.data?.totalPage) {
         setPage(prevPage => prevPage + 1);
       }
     }, [inView, data]);
