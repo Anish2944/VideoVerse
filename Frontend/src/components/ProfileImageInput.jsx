@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useForm } from "react-hook-form"
 
 function ProfileImageInput({ onFileChange }) {
   const [selectedImage, setSelectedImage] = useState(null);

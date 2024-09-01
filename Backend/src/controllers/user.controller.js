@@ -56,7 +56,8 @@ const registerUser = asyncHandler(async (req, res) => {
     // Set the tokens in cookies (optional)
     const options = {
         httpOnly: true,
-        secure: true, 
+        secure: true,
+        maxAge: process.env.COOKIE_EXPIRY, 
     };
     res.cookie("accessToken", accessToken, options);
     res.cookie("refreshToken", refreshToken, options);
@@ -82,13 +83,6 @@ const generateAccessAndRefreshToken = async (userID) => {
 }
 
 const loginUser = asyncHandler(async (req, res) => {
-    /*  req body -> data
-        username or email requried
-        find the user
-        password check
-        access and refresh token
-        send cookie
-    */
 
     const { username, email, password } = req.body;
 
@@ -114,13 +108,12 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
-    // console.log(accessToken)
-    // console.log(refreshToken)
     const logedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     const options = {
         httpOnly: true,
         secure: true,
+        maxAge: process.env.COOKIE_EXPIRY,
     }
 
     return res.status(200)
@@ -159,7 +152,7 @@ const logout = asyncHandler(async (req, res) => {
 
 const accessRefreshToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
-    
+    console.log(incomingRefreshToken);
     if (!incomingRefreshToken) {
         throw new ApiError(401, "Unauthorized request");
     }
@@ -194,6 +187,7 @@ const accessRefreshToken = asyncHandler(async (req, res) => {
     const options = {
         httpOnly: true,
         secure: true,
+        maxAge: process.env.COOKIE_EXPIRY,
     };
 
     // Send the new tokens in cookies and the response body

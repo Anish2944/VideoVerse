@@ -19,13 +19,12 @@ const baseQuery = fetchBaseQuery({
 // 2. Base query with automatic token refresh handling
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
-  console.log('Initial request result:', result);
 
   // If access token is expired, refresh the token
   if (result.error && result.error.status === 401) {
     // Try refreshing the token
     const refreshResult = await baseQuery(
-      { url: '/refresh-token', method: 'POST' },
+      { url: '/refresh-token', method: 'POST', credentials: 'include' },
       api,
       extraOptions
     );
