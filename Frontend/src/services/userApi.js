@@ -1,4 +1,3 @@
-// userApi.js
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
@@ -38,6 +37,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     } else {
       // Handle failed refresh (e.g., log out the user)
       api.dispatch(userApi.util.resetApiState());
+      localStorage.removeItem('token')
     }
   }
 
@@ -46,7 +46,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 
 // 3. Create the API slice
 export const userApi = createApi({
-  reducerPath: 'userApi', // Use a meaningful name for the reducerPath
+  reducerPath: 'userApi',
   baseQuery: baseQueryWithReauth, // Use the enhanced base query
   endpoints: (builder) => ({
     registerUser: builder.mutation({
@@ -69,7 +69,7 @@ export const userApi = createApi({
     }),
     getCurrentUser: builder.query({
       query: () => '/current-user',
-      providesTags: ['UserProfile'], // Use this tag to invalidate and refetch user profile data
+      providesTags: ['UserProfile'],
     }),
     logoutUser: builder.mutation({
       query: () => ({
@@ -93,7 +93,7 @@ export const userApi = createApi({
         method: 'PATCH',
         body: data,
       }),
-      invalidatesTags: ['UserProfile'], // Invalidate and refetch user profile data
+      invalidatesTags: ['UserProfile'],
     }),
     updateCoverImage: builder.mutation({
       query: (file) => ({

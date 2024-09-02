@@ -34,6 +34,7 @@ if (error) {
   return (
     <div>
       <h1>Error: {error.message}</h1>
+      <p className="text-error font-bold text-xl" >Try to Re-login</p>
     </div>
   )
 }
@@ -42,7 +43,7 @@ if (error) {
   return (
     <div className="sm:p-10 p-0 mt-3 sm:m-0 sm:mx-10">
       {(isLoading && page === 1 || isFetching) ? (
-        <div className="flex flex-wrap justify-center gap-1 sm:gap-6">
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
           {[...Array(9)].map((_, index) => (
             <div key={index} className="skeleton h-40 w-[30%] min-w-[250px]"></div>
           ))}

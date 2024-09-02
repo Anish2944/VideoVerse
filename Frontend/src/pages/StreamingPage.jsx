@@ -92,7 +92,7 @@ const StreamingPage = () => {
         <div className="w-full max-w-3xl rounded-lg bg-base-200 lg:max-w-5xl">
           {/* Video Player */}
           <div className="mb-4">
-            <video className="w-full rounded-lg shadow-lg" controls>
+            <video className="w-full rounded-lg max-h-[600px] shadow-lg" controls>
               <source src={videoData.videoFile} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
