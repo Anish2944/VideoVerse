@@ -50,6 +50,7 @@ const Registration = () => {
       const response = await registerUser(formData).unwrap();
       console.log(response)
       localStorage.setItem('token', response.data.accessToken); // Store token in localStorage
+      localStorage.setItem('refreshtoken', response.data.refreshToken);
       dispatch(login({ user: response.data, token: response.data.accessToken }));
 
       if (response.success) {
@@ -151,7 +152,7 @@ const Registration = () => {
             </button>
           </div>
           {isSuccess && (
-            <div role="alert" className="alert z-10 fixed top-1 w-1/3 sm:w-1/5 alert-success">
+            <div role="alert" className="alert z-10 fixed top-1 w-1/2 sm:w-1/5 alert-success">
               <SiTicktick />
               <span>Registration Successful!</span>
             </div>

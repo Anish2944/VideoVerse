@@ -21,12 +21,19 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 
   // If access token is expired, refresh the token
   if (result.error && result.error.status === 401) {
-    // Try refreshing the token
-    const refreshResult = await baseQuery(
+    // Try refreshing the token from cookies
+    let refreshResult = await baseQuery(
       { url: '/refresh-token', method: 'POST', credentials: 'include' },
       api,
       extraOptions
     );
+    //If failed to get it from cookie then get it from body
+    if (result.error && result.error.status === 401) {
+      // Call the mutation that refreshes the access token
+       refreshResult = await api.dispatch(
+        userApi.endpoints.refreshAccessToken.initiate()
+      );
+    }
     console.log('Refresh token result:', refreshResult);
 
 
@@ -81,6 +88,7 @@ export const userApi = createApi({
       query: () => ({
         url: '/refresh-token',
         method: 'POST',
+        body: { refreshToken: localStorage.getItem('refreshtoken') },
       }),
     }),
     getChannelProfile: builder.query({
