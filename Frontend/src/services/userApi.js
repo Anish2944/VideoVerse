@@ -45,6 +45,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       // Handle failed refresh (e.g., log out the user)
       api.dispatch(userApi.util.resetApiState());
       localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
     }
   }
 
