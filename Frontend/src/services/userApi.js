@@ -37,15 +37,17 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     console.log('Refresh token result:', refreshResult);
 
 
-    if (refreshResult.data) {
+    if (refreshResult?.data?.data) {
       // Retry the original request with the new token
-      localStorage.setItem('token', refreshResult.data.accessToken);
+      localStorage.setItem('token', refreshResult?.data?.data?.accessToken);
+      localStorage.setItem('refreshtoken', refreshResult?.data?.data?.refreshToken);
       result = await baseQuery(args, api, extraOptions);
+      console.log('Result after refresh:', result);
     } else {
       // Handle failed refresh (e.g., log out the user)
       api.dispatch(userApi.util.resetApiState());
       localStorage.removeItem('token')
-      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('refreshtoken')
     }
   }
 
