@@ -72,7 +72,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
     result.stats = stats.length > 0 
     ? stats[0] : { totalViews: 0, totalLikes: 0, totalVideos: 0, totalComments: 0 }
 
-    return res.stats(200).json(new ApiResponse(200, result, "stats fetched successfully"))
+    return res.status(200).json(new ApiResponse(200, result, "stats fetched successfully"))
 
 })
 
